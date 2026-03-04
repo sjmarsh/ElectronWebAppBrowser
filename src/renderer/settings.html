@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data:;">
+  <title>Settings</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; padding:16px; }
+    label { display:block; margin-top:8px; font-weight:600; }
+    input[type="text"] { width:100%; padding:8px; font-size:14px; }
+    .row { display:flex; gap:8px; align-items:center; }
+    .actions { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+  </style>
+</head>
+<body>
+  <h2>Settings</h2>
+
+  <label>Web App Display Name</label>
+  <input id="txtAppDisplayName" type="text" />
+
+  <label>Web App Root Path</label>
+  <div class="row">
+    <input id="txtAppPath" type="text" />
+    <button id="btnBrowseAppPath">Browse...</button>
+  </div>
+
+  <label>Web App Executable</label>
+  <input id="txtExecutableName" type="text" />
+
+  <label><input id="chkHideConsoleWindow" type="checkbox" /> Hide Console Window?</label>
+
+  <label>Web App URL</label>
+  <input id="txtAppUrl" type="text" />
+
+  <label>Web App Icon</label>
+  <div class="row">
+    <input id="txtAppIcon" type="text" />
+    <button id="btnBrowseAppIcon">Browse...</button>
+  </div>
+
+  <div class="actions">
+    <button id="btnCancel">Cancel</button>
+    <button id="btnSaveSettings">💾 Save Settings</button>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>
