@@ -15,5 +15,9 @@
       "*": ["node_modules/*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "files":[
+   "src/global.d.ts"
+  ]
 }

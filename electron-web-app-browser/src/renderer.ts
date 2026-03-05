@@ -25,9 +25,6 @@
  *  });
  * ```
  */
+window.electronAPI.logConsole('Hello from the renderer process!');
 
-import './index.css';
 
-console.log(
-  '👋 This message is being logged by "renderer.js", included via webpack',
-);

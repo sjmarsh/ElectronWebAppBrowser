@@ -10,6 +10,12 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
+import path from 'path'
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath('file://' + process.cwd() + '/forge.config.ts');
+const __dirname = path.dirname(__filename);
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -26,15 +32,24 @@ const config: ForgeConfig = {
     new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({
       mainConfig,
+      // Unsafe content security policy for development, do not use in production
+      devContentSecurityPolicy: "default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:",
       renderer: {
         config: rendererConfig,
         entryPoints: [
           {
-            html: './src/index.html',
-            js: './src/renderer.ts',
             name: 'main_window',
+            js: './src/renderer.ts',
             preload: {
-              js: './src/preload.ts',
+              js: path.join(__dirname, 'src', 'preload.ts'),
+            },
+          },
+          {
+            name: 'settings_window',
+            html: './src/settings/settings.html',
+            js: './src/settings/settings-renderer.ts',
+            preload: {
+              js: path.join(__dirname, 'src', 'preload.ts'),
             },
           },
         ],
