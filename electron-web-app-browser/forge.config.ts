@@ -39,17 +39,17 @@ const config: ForgeConfig = {
         entryPoints: [
           {
             name: 'main_window',
-            js: './src/renderer.ts',
+            js: path.join(__dirname, 'src', 'renderer.ts'),
             preload: {
               js: path.join(__dirname, 'src', 'preload.ts'),
             },
           },
           {
             name: 'settings_window',
-            html: './src/settings/settings.html',
-            js: './src/settings/settings-renderer.ts',
+            html: path.join(__dirname, 'src', 'settings', 'index.html'),
+            js: path.join(__dirname, 'src', 'settings', 'renderer.ts'),
             preload: {
-              js: path.join(__dirname, 'src', 'preload.ts'),
+              js: './src/settings/preload.ts',
             },
           },
         ],

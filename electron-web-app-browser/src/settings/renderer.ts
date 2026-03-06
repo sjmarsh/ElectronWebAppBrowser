@@ -8,9 +8,10 @@ class SettingsRenderer {
 
     private async init() {
         try {
-            const settingsJson = await window.electronAPI.readSettings();
-            const settings: ISettingsDefinition = JSON.parse(settingsJson);
-            console.log('Loaded settings:', settings);
+            console.log('SettingsRenderer initialized');
+            console.log('window.settingsAPI:', window.settingsAPI);
+            console.log('window:', window);
+            window.settingsAPI.sendMessageToMain('Hello from SettingsRenderer!');
         } catch (err) {
             console.error('Failed to load settings:', err);
         }

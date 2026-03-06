@@ -14,8 +14,9 @@ const __dirname = path.dirname(__filename);
 // plugin that tells the Electron app where to look for the Webpack-bundled app code (depending on
 // whether you're running in development or production).
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
-declare const SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+declare const SETTINGS_WINDOW_WEBPACK_ENTRY: string;
+declare const SETTINGS_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -64,10 +65,11 @@ const openSettings = async () => {
     modal: false,
     frame: false,
     webPreferences: {
+      sandbox: false, 
       contextIsolation: true,
       nodeIntegration: false,
       webviewTag: true,
-      preload: SETTINGS_WINDOW_WEBPACK_ENTRY,
+      preload: SETTINGS_WINDOW_PRELOAD_WEBPACK_ENTRY,
     }
   });
   settingsWindow.removeMenu();
@@ -91,11 +93,14 @@ const createWebContentsView = (): WebContentsView => {
 
 const createWindow = (): void => {
   console.log(MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY)  // TODO this seems to be undefined, even though forge.config.ts is configured to generate it. Need to investigate why.
+  console.log(SETTINGS_WINDOW_WEBPACK_ENTRY)  // TODO this seems to be undefined, even though forge.config.ts is configured to generate it. Need to investigate why.
+  console.log(SETTINGS_WINDOW_PRELOAD_WEBPACK_ENTRY)  // TODO this seems to be undefined, even though forge.config.ts is configured to generate it. Need to investigate why.
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 600,
     width: 800,
     webPreferences: {
+      sandbox: false,
       contextIsolation: true,
       nodeIntegration: false,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -170,4 +175,8 @@ ipcMain.handle('save-settings', async (event, settings: ISettingsDefinition) => 
 
 ipcMain.handle('log-console', (event, ...args) => {
   console.log('[Renderer]', ...args);
+});
+
+ipcMain.on('message-from-renderer', (event, message) => {
+  console.log('Received message from renderer:', message);
 });
