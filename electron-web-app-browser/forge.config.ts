@@ -10,12 +10,6 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
-import path from 'path'
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath('file://' + process.cwd() + '/forge.config.ts');
-const __dirname = path.dirname(__filename);
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -38,20 +32,21 @@ const config: ForgeConfig = {
         config: rendererConfig,
         entryPoints: [
           {
+            html: './src/index.html',
+            js: './src/renderer.ts',
             name: 'main_window',
-            js: path.join(__dirname, 'src', 'renderer.ts'),
             preload: {
-              js: path.join(__dirname, 'src', 'preload.ts'),
+              js: './src/preload.ts',
             },
           },
           {
             name: 'settings_window',
-            html: path.join(__dirname, 'src', 'settings', 'index.html'),
-            js: path.join(__dirname, 'src', 'settings', 'renderer.ts'),
+            html: './src/settings/index.html',
+            js: './src/settings/renderer.ts',
             preload: {
-              js: './src/settings/preload.ts',
+              js: './src/preload.ts',
             },
-          },
+          }
         ],
       },
     }),

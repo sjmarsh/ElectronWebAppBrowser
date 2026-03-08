@@ -90,3 +90,6 @@ typings/
 
 # Electron-Forge
 out/
+
+# User files
+settings.json
