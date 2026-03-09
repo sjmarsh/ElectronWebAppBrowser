@@ -72,6 +72,7 @@ class SettingsRenderer {
 
       btnBrowseAppIcon.addEventListener('click', async () => {
         const fileResult = await window.electronAPI.selectFile({ filters: [{ name: 'Icons', extensions: ['ico', 'png', 'svg'] }] });
+        window.electronAPI.logConsole('Browse App Icon selection:', fileResult);
         const file = Array.isArray(fileResult) && fileResult.length > 0 ? fileResult[0] : null;
         if (file) txtAppIcon.value = file;
       });
