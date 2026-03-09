@@ -53,20 +53,21 @@ class SettingsRenderer {
 
 
       btnBrowseAppPath.addEventListener('click', async () => {
-      const fileResult = await window.electronAPI.selectFile({ filters: [{ name: 'Executables', extensions: ['exe', '*'] }] });
-      const file = Array.isArray(fileResult) && fileResult.length > 0 ? fileResult[0] : null;
-      if (file) {
-        // store directory and executable name separately, like WPF
-        try {
-          const parts = file.split(/\\|\//);
-          const exe = parts.pop();
-          const dir = parts.join('\\');
-          txtAppPath.value = dir;
-          txtExecutableName.value = exe;
-        } catch (e) {
-          txtAppPath.value = file;
+        const fileResult = await window.electronAPI.selectFile({ filters: [{ name: 'Executables', extensions: ['exe', '*'] }] });
+        window.electronAPI.logConsole('Browse App Path Selection: ', fileResult);
+        const file = Array.isArray(fileResult) && fileResult.length > 0 ? fileResult[0] : null;
+        if (file) {
+          // store directory and executable name separately
+          try {
+            const parts = file.split(/\\|\//);
+            const exe = parts.pop();
+            const dir = parts.join('\\');
+            txtAppPath.value = dir;
+            txtExecutableName.value = exe;
+          } catch (e) {
+            txtAppPath.value = file;
+          }
         }
-      }
       });
 
       btnBrowseAppIcon.addEventListener('click', async () => {

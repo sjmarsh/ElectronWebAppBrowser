@@ -92,7 +92,7 @@ const createWindow = (): void => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+ // mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
@@ -140,12 +140,10 @@ ipcMain.handle('read-settings', async () => {
   return null;
 });
 
-
 ipcMain.handle('select-file', async (event, opts: IFileDialogOptions) => {
-  console.log('select-file', opts);
   const result = await dialog.showOpenDialog({ properties: ['openFile'], filters: opts?.filters || [] });
   if (result.canceled || !result.filePaths || result.filePaths.length === 0) return null;
-  return result.filePaths[0];
+  return result.filePaths;
 });
 
 ipcMain.handle('save-settings', async (event, settings: ISettingsDefinition) => {

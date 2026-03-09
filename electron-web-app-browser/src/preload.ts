@@ -7,7 +7,7 @@ import { ISaveSettingsResult } from "./types/ISaveSettingsResult";
 
 export interface IElectronAPI {
     logConsole: (...args: any[]) => void;
-    selectFile: (ops: IFileDialogOptions) => Promise<string | null>;
+    selectFile: (ops: IFileDialogOptions) => Promise<string[] | null>;
     readSettings: () => Promise<string>;
     saveSettings: (settings: ISettingsDefinition) => Promise<ISaveSettingsResult>;
     openSettingsWindow: () => void;
