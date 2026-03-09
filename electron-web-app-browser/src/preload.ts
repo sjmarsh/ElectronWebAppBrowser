@@ -11,6 +11,7 @@ export interface IElectronAPI {
     readSettings: () => Promise<string>;
     saveSettings: (settings: ISettingsDefinition) => Promise<ISaveSettingsResult>;
     openSettingsWindow: () => void;
+    closeSettingsWindow: () => void;
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -19,4 +20,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     selectFile: (ops: IFileDialogOptions) => ipcRenderer.invoke('select-file', ops),
     saveSettings: (settings: ISettingsDefinition) => ipcRenderer.invoke('save-settings', settings),
     openSettingsWindow: () => ipcRenderer.invoke('open-settings-window'),
+    closeSettingsWindow: () => ipcRenderer.invoke('close-settings-window')
 } as IElectronAPI );

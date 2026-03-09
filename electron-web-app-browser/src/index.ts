@@ -51,13 +51,14 @@ Menu.setApplicationMenu(menu);
 let settingsWindow: BrowserWindow | null = null;
 const openSettings = async () => {
   if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.show();
     settingsWindow.focus();
     return;
   }
   settingsWindow = new BrowserWindow({
     width: 800,
     height: 520,
-    parent: BrowserWindow.getAllWindows()[0] || null,
+    parent: mainWindow || null,
     modal: false,
     frame: false,
     webPreferences: {
@@ -74,13 +75,23 @@ const openSettings = async () => {
   settingsWindow.once('ready-to-show', () => {
     settingsWindow.show();
   });
-  settingsWindow.on('closed', () => { settingsWindow = null; });
+  settingsWindow.on('closed', () => { 
+    console.log('settings closed');
+    settingsWindow = null; 
+  });
 };
 
+const closeSettings = () => {
+  if(settingsWindow && settingsWindow.closable) {
+    console.log('closing settings');
+    settingsWindow.hide();  // use hide instead of close - because close is closing the parent window as well for some reason.
+  }
+}
 
+let mainWindow: BrowserWindow | null = null;
 const createWindow = (): void => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     height: 600,
     width: 800,
     webPreferences: {
@@ -158,4 +169,8 @@ ipcMain.handle('save-settings', async (event, settings: ISettingsDefinition) => 
 
 ipcMain.handle('open-settings-window', () => {
   openSettings();
+});
+
+ipcMain.handle('close-settings-window', () => {
+  closeSettings();
 });

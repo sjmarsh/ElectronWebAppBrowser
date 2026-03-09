@@ -89,14 +89,13 @@ class SettingsRenderer {
         const res = await window.electronAPI.saveSettings(settings);
         if (res && res.ok) {
           btnSaveSettings.textContent = '✔ Saved';
-          setTimeout(() => window.close(), 600);
+          //setTimeout(() => window.electronAPI.closeSettingsWindow(), 600);
         } else {
           alert('Failed to save settings: ' + (res && res.error));
         }
       });
 
-
-      btnCancel.addEventListener('click', () => window.close());
+      btnCancel.addEventListener('click', () => window.electronAPI.closeSettingsWindow());
     }
 }
 
