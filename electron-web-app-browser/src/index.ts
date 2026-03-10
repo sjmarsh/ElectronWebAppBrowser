@@ -152,6 +152,8 @@ const startApiService = async (): Promise<boolean> => {
       if(settings.AppPath && settings.ExecutableName) {
         if(process.platform === 'linux') {
           console.log('Attempting to start API Service on Linux.');
+
+
         } else if(process.platform === 'win32') {
           console.log('Attempting to start API Service on Windows.');
           dotNetProcess = exec(path.join(settings.AppPath, settings.ExecutableName), { cwd: settings.AppPath }, (err, stdout, stderr) => { 
@@ -173,6 +175,7 @@ const startApiService = async (): Promise<boolean> => {
 
       }
     }
+    // todo - ifStarted = true, add some polling to make sure url is ready before returning.
 
     return isStarted;
   }
@@ -205,7 +208,9 @@ const createWindow = (): void => {
 
   // TODO add some sort of process indicator
   startApiService().then((res: boolean) => {
+    console.log('api service res:', res);
     if(res) {
+      
       createWebContentsView();
       mainWindow.contentView.addChildView(webContentsView);
     }
@@ -234,6 +239,11 @@ app.on('window-all-closed', () => {
 
   if(webContentsView) {
     webContentsView = null;
+  }
+
+  if(dotNetProcess) {
+    dotNetProcess.kill();
+    dotNetProcess = null;
   }
 
   if (process.platform !== 'darwin') {
