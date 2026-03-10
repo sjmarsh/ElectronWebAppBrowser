@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem  } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem, WebContentsView  } from 'electron';
 import path from 'path'
 import fs from 'fs';
 import { IFileDialogOptions } from './types/IFileDialogOptions.js';
@@ -19,7 +19,6 @@ let settings: ISettingsDefinition | null = null;
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
-
 
 const menu = new Menu();
 const submenu = Menu.buildFromTemplate([
@@ -133,8 +132,16 @@ const readSettings = async () : Promise<ISettingsDefinition | null> => {
       }
     }
     return null;
+  }  
+}
+
+let webContentsView: WebContentsView | null = null;
+const createWebContentsView = (): void => {
+  if(!webContentsView) {
+    webContentsView = new WebContentsView();
+    webContentsView.webContents.loadURL('https://www.google.com'); // for now just use google
+    webContentsView.setBounds({ x: 0, y: 0, width: 400, height: 400 });
   }
-  
 }
 
 let mainWindow: BrowserWindow | null = null;
@@ -151,6 +158,8 @@ const createWindow = (): void => {
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
+  createWebContentsView();
+  mainWindow.contentView.addChildView(webContentsView);
   // Open the DevTools.
  // mainWindow.webContents.openDevTools();
 };
@@ -164,6 +173,14 @@ app.on('ready', createWindow);
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
+  if(settings) {
+    settings = null;
+  }
+  
+  if(webContentsView) {
+    webContentsView = null;
+  }
+
   if (process.platform !== 'darwin') {
     app.quit();
   }
