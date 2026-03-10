@@ -13,6 +13,8 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 declare const SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 declare const SETTINGS_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
+let settings: ISettingsDefinition | null = null;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -88,6 +90,53 @@ const closeSettings = () => {
   }
 }
 
+const readSettings = async () : Promise<ISettingsDefinition | null> => {
+  if(settings) {
+    console.log('Using cached settings');
+    return settings;
+  }
+  else {
+    console.log('Reading settings from file');
+    const candidates = [
+      path.join(process.cwd(), 'settings.json')
+    ];
+
+    for (const p of candidates) {
+      try {
+        if (fs.existsSync(p)) {
+          let settingsString =  fs.readFileSync(p, 'utf8');
+          console.log('Settings String: ', settingsString);
+          if(settingsString && settingsString.length > 0){
+            let parsed = null;
+            try { 
+              parsed = JSON.parse(settingsString); 
+            } catch (e) { 
+              parsed = null; 
+              console.log('Unable to parse settings.');
+            }
+            if(parsed) {
+              settings = {
+                AppDisplayName: parsed.AppDisplayName || parsed.appDisplayName || '',
+                AppPath: parsed.AppPath || parsed.appPath || '',
+                ExecutableName: parsed.ExecutableName || parsed.executableName || '',
+                HideConsoleWindow: parsed.HideConsoleWindow || false,
+                AppUrl: parsed.AppUrl || parsed.appUrl || '',
+                AppIcon: parsed.AppIcon || parsed.appIcon || ''
+              } as ISettingsDefinition
+              console.log('Typed/Mapped settings: ', settings);
+              return settings;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Unable to read settings file.', e);
+      }
+    }
+    return null;
+  }
+  
+}
+
 let mainWindow: BrowserWindow | null = null;
 const createWindow = (): void => {
   // Create the browser window.
@@ -134,21 +183,8 @@ ipcMain.handle('log-console', (event, ...args) => {
   console.log('[Renderer]', ...args);
 });
 
-ipcMain.handle('read-settings', async () => {
-  const candidates = [
-    path.join(process.cwd(), 'settings.json')
-  ];
-
-  for (const p of candidates) {
-    try {
-      if (fs.existsSync(p)) {
-        return fs.readFileSync(p, 'utf8');
-      }
-    } catch (e) {
-      // ignore and continue
-    }
-  }
-  return null;
+ipcMain.handle('read-settings', async () : Promise<ISettingsDefinition | null> => {
+  return readSettings();
 });
 
 ipcMain.handle('select-file', async (event, opts: IFileDialogOptions) => {

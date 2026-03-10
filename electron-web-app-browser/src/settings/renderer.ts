@@ -27,30 +27,22 @@ class SettingsRenderer {
       window.electronAPI.logConsole('Settings Renderer initialized - logged with api');
 
       try {
-          // load settings
-          const settings = await window.electronAPI.readSettings();
-          if(settings) {
-            console.log('Settings read');
-            console.log(settings);
-            let parsed = null;
-            try { parsed = JSON.parse(settings); } catch (e) { parsed = null; }
-            
-            if (txtAppDisplayName) txtAppDisplayName.value = parsed.AppDisplayName || parsed.appDisplayName || '';
-            if (txtAppPath) txtAppPath.value = parsed.AppPath || parsed.appPath || '';
-            if (txtExecutableName) txtExecutableName.value = parsed.ExecutableName || parsed.executableName || '';
-            if (chkHideConsoleWindow) chkHideConsoleWindow.checked = parsed.HideConsoleWindow || false;
-            if (txtAppUrl) txtAppUrl.value = parsed.AppUrl || parsed.appUrl || '';
-            if (txtAppIcon) txtAppIcon.value = parsed.AppIcon || parsed.appIcon || '';
-
-          }
-          else {
-            window.electronAPI.logConsole('No existing settings.')
-          }
-
+        // load settings
+        const settings = await window.electronAPI.readSettings();
+        if(settings) {
+          if (txtAppDisplayName) txtAppDisplayName.value = settings.AppDisplayName;
+          if (txtAppPath) txtAppPath.value = settings.AppPath;
+          if (txtExecutableName) txtExecutableName.value = settings.ExecutableName;
+          if (chkHideConsoleWindow) chkHideConsoleWindow.checked = settings.HideConsoleWindow;
+          if (txtAppUrl) txtAppUrl.value = settings.AppUrl;
+          if (txtAppIcon) txtAppIcon.value = settings.AppIcon;
+        }
+        else {
+          window.electronAPI.logConsole('No existing settings.')
+        }
       } catch (err) {
           console.error('Failed to load settings:', err);
       }
-
 
       btnBrowseAppPath.addEventListener('click', async () => {
         const fileResult = await window.electronAPI.selectFile({ filters: [{ name: 'Executables', extensions: ['exe', '*'] }] });
