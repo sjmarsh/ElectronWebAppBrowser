@@ -189,8 +189,8 @@ let webContentsView: WebContentsView | null = null;
 const createWebContentsView = (): void => {
   if(!webContentsView) {
     webContentsView = new WebContentsView();
-    webContentsView.webContents.loadURL('https://www.google.com'); // for now just use google
-    webContentsView.setBounds({ x: 0, y: 0, width: 400, height: 400 });
+    webContentsView.webContents.loadURL(settings.AppUrl); 
+    
   }
 }
 
@@ -210,8 +210,11 @@ const createWindow = (): void => {
   startApiService().then((res: boolean) => {
     console.log('api service res:', res);
     if(res) {
-      
       createWebContentsView();
+      setWebContentsDimensions();
+      mainWindow.on('resize', () => {
+        setWebContentsDimensions();
+      });
       mainWindow.contentView.addChildView(webContentsView);
     }
     else {
@@ -223,6 +226,11 @@ const createWindow = (): void => {
   //mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);  
 
 };
+
+function setWebContentsDimensions() {
+  const { width, height } = mainWindow.getBounds();
+  webContentsView.setBounds({ x: 0, y: 0, width: width, height: height });
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -292,3 +300,5 @@ ipcMain.handle('open-settings-window', () => {
 ipcMain.handle('close-settings-window', () => {
   closeSettings();
 });
+
+
