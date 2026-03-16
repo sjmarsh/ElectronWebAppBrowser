@@ -155,19 +155,25 @@ const startApiService = async (): Promise<boolean> => {
 
 
         } else if(process.platform === 'win32') {
-          console.log('Attempting to start API Service on Windows.');
-          dotNetProcess = exec(path.join(settings.AppPath, settings.ExecutableName), { cwd: settings.AppPath }, (err, stdout, stderr) => { 
-            if(err) {
-              console.error(err);
-            }
-            if(stderr) {
-              console.error(`stderr: ${stderr}`)
-            }
-            if(stdout) {
-              console.log(stdout);
-              isStarted = true;
-            }
-          });
+          
+           const out = fs.openSync(path.join(__dirname, 'out.log'), 'a');
+          const err = fs.openSync(path.join(__dirname, 'out.log'), 'a');
+          try {
+            const exePath = path.join(settings.AppPath, settings.ExecutableName);
+            console.log('Attempting to start API Service on Windows.');
+            dotNetProcess = spawn(exePath, { 
+              cwd: settings.AppPath,
+              shell: !settings.HideConsoleWindow,
+              detached: true,
+              stdio: [ 'ignore', out, err ]
+            });
+            dotNetProcess.unref();
+            console.log(`Spawned child proces with PID: ${dotNetProcess.pid}`);
+            isStarted = true;
+          } catch(error) {
+            console.error("Failed to spawn child process", error);
+          }    
+
         }
         else {
           console.log(`Platform: ${process.platform} is not supported.`);
