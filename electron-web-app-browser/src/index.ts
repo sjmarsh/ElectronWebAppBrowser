@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem, WebContentsView  } from 'electron';
-import { ChildProcess, exec, spawn } from 'child_process';
+import { ChildProcess, spawn } from 'child_process';
+import { setIntervalAsync, clearIntervalAsync } from 'set-interval-async/dynamic';
 import path from 'path'
 import fs from 'fs';
 
@@ -150,17 +151,13 @@ const startApiService = async (): Promise<boolean> => {
     }
     else {
       if(settings.AppPath && settings.ExecutableName) {
-        if(process.platform === 'linux') {
-          console.log('Attempting to start API Service on Linux.');
-
-
-        } else if(process.platform === 'win32') {
-          
-           const out = fs.openSync(path.join(__dirname, 'out.log'), 'a');
+        
+        if(process.platform === 'linux' || process.platform === 'win32') {
+          const out = fs.openSync(path.join(__dirname, 'out.log'), 'a');
           const err = fs.openSync(path.join(__dirname, 'out.log'), 'a');
           try {
             const exePath = path.join(settings.AppPath, settings.ExecutableName);
-            console.log('Attempting to start API Service on Windows.');
+            console.log(`Attempting to start API Service at ${exePath} on ${process.platform} platform.`);
             dotNetProcess = spawn(exePath, { 
               cwd: settings.AppPath,
               shell: !settings.HideConsoleWindow,
@@ -173,7 +170,6 @@ const startApiService = async (): Promise<boolean> => {
           } catch(error) {
             console.error("Failed to spawn child process", error);
           }    
-
         }
         else {
           console.log(`Platform: ${process.platform} is not supported.`);
@@ -181,8 +177,7 @@ const startApiService = async (): Promise<boolean> => {
 
       }
     }
-    // todo - ifStarted = true, add some polling to make sure url is ready before returning.
-
+    
     return isStarted;
   }
   else {
@@ -191,12 +186,36 @@ const startApiService = async (): Promise<boolean> => {
   }
 }
 
+const waitForAppUrl = async () : Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    try {
+      const maxAttempts = 10;
+      let attempts = 0;
+      const appUrlTimer = setIntervalAsync(async () => {
+        console.log(`Testing is App URL is available at ${settings.AppUrl}. Attempt: ${attempts}`)
+        let isUrlUp = await isUp(settings.AppUrl);
+        if(isUrlUp) {
+          console.log('App URL is up.');
+          resolve(true);
+          await clearIntervalAsync(appUrlTimer);
+        }
+        if(attempts >= maxAttempts){
+          reject('Maxiumum attempts to reach app URL reached');
+          await clearIntervalAsync(appUrlTimer);
+          
+        }
+        attempts++;
+      }, 1000);
+    } catch(error) {
+      reject(`Unexpected error occurred waiting for app url: Error: ${error}`);
+    }    
+  });
+}
+
 let webContentsView: WebContentsView | null = null;
 const createWebContentsView = (): void => {
   if(!webContentsView) {
-    webContentsView = new WebContentsView();
-    webContentsView.webContents.loadURL(settings.AppUrl); 
-    
+    webContentsView = new WebContentsView();    
   }
 }
 
@@ -221,7 +240,14 @@ const createWindow = (): void => {
       mainWindow.on('resize', () => {
         setWebContentsDimensions();
       });
-      mainWindow.contentView.addChildView(webContentsView);
+      waitForAppUrl().then((res) => {
+        console.log(`Waiting for AppUrl returned: ${res}`);
+        console.log(`Setting web contents url to: ${settings.AppUrl}`);
+        webContentsView.webContents.loadURL(settings.AppUrl); 
+        mainWindow.contentView.addChildView(webContentsView);
+      }).catch((err) => {
+        console.error(`Error waiting for App URL: ${err}`);
+      });
     }
     else {
       console.log('Service not started. Cannot display web app.');
