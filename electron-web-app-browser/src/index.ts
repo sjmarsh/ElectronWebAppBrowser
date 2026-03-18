@@ -220,18 +220,22 @@ const createWebContentsView = (): void => {
 
 let mainWindow: BrowserWindow | null = null;
 const createWindow = (): void => {
-  readSettings().then((value: ISettingsDefinition) => {    
+  readSettings().then((value: ISettingsDefinition) => {
+    let appTitle = value?.AppDisplayName ?? "Web Application Browser";
+    let appTitleLoading = `${appTitle} - Loading...`
+    let appIcon = value?.AppIcon ?? "";
     // Create the browser window.
     mainWindow = new BrowserWindow({
       height: 600,
       width: 800,
-      icon: value?.AppIcon ?? "",
-      title: value?.AppDisplayName ?? "Web Application Browser",
+      title: appTitleLoading,
+      icon: appIcon,
       webPreferences: {
         preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       }
     });
-
+    mainWindow.setProgressBar(0.3);
+    
     startApiService().then((res: boolean) => {
       console.log('api service res:', res);
       if(res) {
@@ -240,11 +244,15 @@ const createWindow = (): void => {
         mainWindow.on('resize', () => {
           setWebContentsDimensions();
         });
+        mainWindow.setProgressBar(.5);
         waitForAppUrl().then((res) => {
           console.log(`Waiting for AppUrl returned: ${res}`);
           console.log(`Setting web contents url to: ${settings.AppUrl}`);
           webContentsView.webContents.loadURL(value.AppUrl); 
+          mainWindow.setProgressBar(1);
           mainWindow.contentView.addChildView(webContentsView);
+          mainWindow.title = appTitle;
+          mainWindow.setProgressBar(-1);
         }).catch((err) => {
           console.error(`Error waiting for App URL: ${err}`);
         });
