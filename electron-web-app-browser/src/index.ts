@@ -77,7 +77,6 @@ const openSettings = async () => {
   });
   settingsWindow.removeMenu();
   settingsWindow.loadURL(SETTINGS_WINDOW_WEBPACK_ENTRY);
-  //settingsWindow.loadFile(path.join(__dirname, 'settings', 'settings.html'));
   settingsWindow.once('ready-to-show', () => {
     settingsWindow.show();
   });
@@ -221,42 +220,42 @@ const createWebContentsView = (): void => {
 
 let mainWindow: BrowserWindow | null = null;
 const createWindow = (): void => {
-    
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
-    webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-    },
-  });
+  readSettings().then((value: ISettingsDefinition) => {    
+    // Create the browser window.
+    mainWindow = new BrowserWindow({
+      height: 600,
+      width: 800,
+      icon: value?.AppIcon ?? "",
+      title: value?.AppDisplayName ?? "Web Application Browser",
+      webPreferences: {
+        preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      }
+    });
 
-  // TODO add some sort of process indicator
-  startApiService().then((res: boolean) => {
-    console.log('api service res:', res);
-    if(res) {
-      createWebContentsView();
-      setWebContentsDimensions();
-      mainWindow.on('resize', () => {
+    startApiService().then((res: boolean) => {
+      console.log('api service res:', res);
+      if(res) {
+        createWebContentsView();
         setWebContentsDimensions();
-      });
-      waitForAppUrl().then((res) => {
-        console.log(`Waiting for AppUrl returned: ${res}`);
-        console.log(`Setting web contents url to: ${settings.AppUrl}`);
-        webContentsView.webContents.loadURL(settings.AppUrl); 
-        mainWindow.contentView.addChildView(webContentsView);
-      }).catch((err) => {
-        console.error(`Error waiting for App URL: ${err}`);
-      });
-    }
-    else {
-      console.log('Service not started. Cannot display web app.');
-    }
+        mainWindow.on('resize', () => {
+          setWebContentsDimensions();
+        });
+        waitForAppUrl().then((res) => {
+          console.log(`Waiting for AppUrl returned: ${res}`);
+          console.log(`Setting web contents url to: ${settings.AppUrl}`);
+          webContentsView.webContents.loadURL(value.AppUrl); 
+          mainWindow.contentView.addChildView(webContentsView);
+        }).catch((err) => {
+          console.error(`Error waiting for App URL: ${err}`);
+        });
+      }
+      else {
+        console.log('Service not started. Cannot display web app.');
+      }
+    })
   })
-
   // and load the index.html of the app.  Commented out as not required if using WebContentsView in full screen.
   //mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);  
-
 };
 
 function setWebContentsDimensions() {
