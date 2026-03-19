@@ -32,22 +32,15 @@ const selectFileButton = document.getElementById('select-file');
 selectFileButton?.addEventListener('click', async () => {
    const fileResult = await window.electronAPI.selectFile({ filters: [{ name: 'Executables', extensions: ['exe', '*'] }] });
     if (fileResult) {
-        window.electronAPI.logConsole('Selected file:', fileResult);
+        window.electronAPI.logDetail('Selected file:', fileResult);
     } else {
-        window.electronAPI.logConsole('No file selected');
+        window.electronAPI.log('No file selected');
     }
 });
 
 const openSettingsButton = document.getElementById('open-settings');
 openSettingsButton?.addEventListener('click', () => {
-    window.electronAPI.logConsole('Open Settings button clicked');
+    window.electronAPI.log('Open Settings button clicked');
     window.electronAPI.openSettingsWindow();
 });
 
-
-window.electronAPI.logConsole('This message is using the preload ipc bridge');
-
-
-console.log(
-  '👋 This message is being logged by "renderer.js", included via webpack',
-);

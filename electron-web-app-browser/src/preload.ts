@@ -6,19 +6,25 @@ import { ISettingsDefinition } from "./types/ISettingsDefinition";
 import { ISaveSettingsResult } from "./types/ISaveSettingsResult";
 
 export interface IElectronAPI {
-    logConsole: (...args: any[]) => void;
     selectFile: (ops: IFileDialogOptions) => Promise<string[] | null>;
     readSettings: () => Promise<ISettingsDefinition | null>;
     saveSettings: (settings: ISettingsDefinition) => Promise<ISaveSettingsResult>;
     openSettingsWindow: () => void;
     closeSettingsWindow: () => void;
+    log: (message: string) => void;
+    logDetail: (message: string, obj: any) => void;
+    logError: (message: string) => void;
+    logErrorDetail: (message: string, err: any) => void;
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    logConsole: (...args: any[]) => ipcRenderer.invoke('log-console', ...args),
     readSettings: () => ipcRenderer.invoke('read-settings'),
     selectFile: (ops: IFileDialogOptions) => ipcRenderer.invoke('select-file', ops),
     saveSettings: (settings: ISettingsDefinition) => ipcRenderer.invoke('save-settings', settings),
     openSettingsWindow: () => ipcRenderer.invoke('open-settings-window'),
-    closeSettingsWindow: () => ipcRenderer.invoke('close-settings-window')
+    closeSettingsWindow: () => ipcRenderer.invoke('close-settings-window'),
+    log: (message: string) => ipcRenderer.invoke('log', message),
+    logDetail: (message: string, obj: any) => ipcRenderer.invoke('log-detail', message, obj),
+    logError: (message: string)=> ipcRenderer.invoke('log-error', message),
+    logErrorDetail: (message: string, err: any)=> ipcRenderer.invoke('log-error-detail', message, err),
 } as IElectronAPI );

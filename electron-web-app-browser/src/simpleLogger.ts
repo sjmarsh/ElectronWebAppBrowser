@@ -30,8 +30,14 @@ function error(message: string) {
     });
 }
 
+function errorDetail(message: string, err: any) {
+    const completeMessage = err ? `${message} ${JSON.stringify(err)}` : message;
+    error(completeMessage);
+}
+
 export default {
     log,
     logDetail,
-    error
+    error,
+    errorDetail
 }

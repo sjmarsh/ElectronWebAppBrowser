@@ -23,8 +23,7 @@ class SettingsRenderer {
         throw new Error('Required DOM elements not found');
       }
 
-      console.log('Settings Renderer initialized');
-      window.electronAPI.logConsole('Settings Renderer initialized - logged with api');
+      window.electronAPI.log('Settings Renderer initialized - logged with api');
 
       try {
         // load settings
@@ -38,15 +37,15 @@ class SettingsRenderer {
           if (txtAppIcon) txtAppIcon.value = settings.AppIcon;
         }
         else {
-          window.electronAPI.logConsole('No existing settings.')
+          window.electronAPI.log('No existing settings.')
         }
       } catch (err) {
-          console.error('Failed to load settings:', err);
+          window.electronAPI.logErrorDetail('Failed to load settings:', err);
       }
 
       btnBrowseAppPath.addEventListener('click', async () => {
         const fileResult = await window.electronAPI.selectFile({ filters: [{ name: 'Executables', extensions: ['exe', '*'] }] });
-        window.electronAPI.logConsole('Browse App Path Selection: ', fileResult);
+        window.electronAPI.logErrorDetail('Browse App Path Selection: ', fileResult);
         const file = Array.isArray(fileResult) && fileResult.length > 0 ? fileResult[0] : null;
         if (file) {
           // store directory and executable name separately
@@ -64,7 +63,7 @@ class SettingsRenderer {
 
       btnBrowseAppIcon.addEventListener('click', async () => {
         const fileResult = await window.electronAPI.selectFile({ filters: [{ name: 'Icons', extensions: ['ico', 'png', 'svg'] }] });
-        window.electronAPI.logConsole('Browse App Icon selection:', fileResult);
+        window.electronAPI.logDetail('Browse App Icon selection:', fileResult);
         const file = Array.isArray(fileResult) && fileResult.length > 0 ? fileResult[0] : null;
         if (file) txtAppIcon.value = file;
       });
