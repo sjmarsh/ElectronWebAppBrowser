@@ -1,6 +1,5 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem, WebContentsView  } from 'electron';
 import { ChildProcess, spawn } from 'child_process';
-import { setIntervalAsync, clearIntervalAsync } from 'set-interval-async/dynamic';
 import path from 'path'
 import fs from 'fs';
 
@@ -19,7 +18,7 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 declare const SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 declare const SETTINGS_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-let settings: ISettingsDefinition | null = null;
+let settingsCache: ISettingsDefinition | null = null;
 let dotNetProcess: ChildProcess | null = null; 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -96,9 +95,9 @@ const closeSettings = () => {
 }
 
 const readSettings = async () : Promise<ISettingsDefinition | null> => {
-  if(settings) {
+  if(settingsCache) {
     simpleLogger.log('Using cached settings');
-    return settings;
+    return settingsCache;
   }
   else {
     simpleLogger.log('Reading settings from file');
@@ -120,7 +119,7 @@ const readSettings = async () : Promise<ISettingsDefinition | null> => {
               simpleLogger.error('Unable to parse settings.');
             }
             if(parsed) {
-              settings = {
+              settingsCache = {
                 AppDisplayName: parsed.AppDisplayName || parsed.appDisplayName || '',
                 AppPath: parsed.AppPath || parsed.appPath || '',
                 ExecutableName: parsed.ExecutableName || parsed.executableName || '',
@@ -128,8 +127,8 @@ const readSettings = async () : Promise<ISettingsDefinition | null> => {
                 AppUrl: parsed.AppUrl || parsed.appUrl || '',
                 AppIcon: parsed.AppIcon || parsed.appIcon || ''
               } as ISettingsDefinition
-              simpleLogger.logDetail('Typed/Mapped settings: ', settings);
-              return settings;
+              simpleLogger.logDetail('Typed/Mapped settings: ', settingsCache);
+              return settingsCache;
             }
           }
         }
@@ -144,7 +143,7 @@ const readSettings = async () : Promise<ISettingsDefinition | null> => {
 const startApiService = async (): Promise<boolean> => {
   simpleLogger.log('Starting API Service');
   let isStarted = false;
-  await readSettings();
+  const settings = await readSettings();
   if(settings) {
     isStarted = await isUp(settings.AppUrl);
     if(isStarted) {
@@ -197,15 +196,16 @@ const createWebContentsView = (): void => {
 let mainWindow: BrowserWindow | null = null;
 const createWindow = (): void => {
   readSettings().then((value: ISettingsDefinition) => {
-    let appTitle = value?.AppDisplayName ?? "Web Application Browser";
-    let appTitleLoading = `${appTitle} - Loading...`
-    let appIcon = value?.AppIcon ?? "";
+    const settings = {...value} as ISettingsDefinition;
+    settings.AppDisplayName = settings?.AppDisplayName ?? "Web Application Browser";
+    settings.AppIcon = settings?.AppIcon ?? "";
+    let appTitleLoading = `${settings.AppDisplayName} - Loading...`
     // Create the browser window.
     mainWindow = new BrowserWindow({
       height: 600,
       width: 800,
       title: appTitleLoading,
-      icon: appIcon,
+      icon: settings.AppIcon,
       webPreferences: {
         preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       }
@@ -223,10 +223,10 @@ const createWindow = (): void => {
         mainWindow.setProgressBar(.5);
         waitForUrl(settings.AppUrl, 1000, 10).then((res) => {
           simpleLogger.log(`Setting web contents url to: ${settings.AppUrl}`);
-          webContentsView.webContents.loadURL(value.AppUrl); 
+          webContentsView.webContents.loadURL(settings.AppUrl); 
           mainWindow.setProgressBar(1);
           mainWindow.contentView.addChildView(webContentsView);
-          mainWindow.title = appTitle;
+          mainWindow.title = settings.AppDisplayName;
           mainWindow.setProgressBar(-1);
         }).catch((err) => {
           simpleLogger.error(`Error waiting for App URL: ${err}`);
@@ -255,8 +255,8 @@ app.on('ready', createWindow);
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if(settings) {
-    settings = null;
+  if(settingsCache) {
+    settingsCache = null;
   }
 
   if(webContentsView) {
