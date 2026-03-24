@@ -5,7 +5,7 @@ import fs from 'fs';
 
 import { IFileDialogOptions } from './types/IFileDialogOptions.js';
 import { ISettingsDefinition } from './types/ISettingsDefinition.js';
-import { ISaveSettingsResult } from './types/ISaveSettingsResult.js';
+import settingsService from './settings/settingsService';
 import isUp from './utils/isUp';
 import simpleLogger from './utils/simpleLogger';
 import waitForUrl from './utils/waitForUrl';
@@ -18,7 +18,7 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 declare const SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 declare const SETTINGS_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-let settingsCache: ISettingsDefinition | null = null;
+
 let dotNetProcess: ChildProcess | null = null; 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -94,56 +94,10 @@ const closeSettings = () => {
   }
 }
 
-const readSettings = async () : Promise<ISettingsDefinition | null> => {
-  if(settingsCache) {
-    simpleLogger.log('Using cached settings');
-    return settingsCache;
-  }
-  else {
-    simpleLogger.log('Reading settings from file');
-    const candidates = [
-      path.join(process.cwd(), 'settings.json')
-    ];
-
-    for (const p of candidates) {
-      try {
-        if (fs.existsSync(p)) {
-          let settingsString =  fs.readFileSync(p, 'utf8');
-          simpleLogger.logDetail('Settings String: ', settingsString);
-          if(settingsString && settingsString.length > 0){
-            let parsed = null;
-            try { 
-              parsed = JSON.parse(settingsString); 
-            } catch (e) { 
-              parsed = null; 
-              simpleLogger.error('Unable to parse settings.');
-            }
-            if(parsed) {
-              settingsCache = {
-                AppDisplayName: parsed.AppDisplayName || parsed.appDisplayName || '',
-                AppPath: parsed.AppPath || parsed.appPath || '',
-                ExecutableName: parsed.ExecutableName || parsed.executableName || '',
-                HideConsoleWindow: parsed.HideConsoleWindow || false,
-                AppUrl: parsed.AppUrl || parsed.appUrl || '',
-                AppIcon: parsed.AppIcon || parsed.appIcon || ''
-              } as ISettingsDefinition
-              simpleLogger.logDetail('Typed/Mapped settings: ', settingsCache);
-              return settingsCache;
-            }
-          }
-        }
-      } catch (e) {
-        simpleLogger.errorDetail('Unable to read settings file.', e);
-      }
-    }
-    return null;
-  }  
-}
-
 const startApiService = async (): Promise<boolean> => {
   simpleLogger.log('Starting API Service');
   let isStarted = false;
-  const settings = await readSettings();
+  const settings = await settingsService.readSettings();
   if(settings) {
     isStarted = await isUp(settings.AppUrl);
     if(isStarted) {
@@ -195,7 +149,7 @@ const createWebContentsView = (): void => {
 
 let mainWindow: BrowserWindow | null = null;
 const createWindow = (): void => {
-  readSettings().then((value: ISettingsDefinition) => {
+  settingsService.readSettings().then((value: ISettingsDefinition) => {
     const settings = {...value} as ISettingsDefinition;
     settings.AppDisplayName = settings?.AppDisplayName ?? "Web Application Browser";
     settings.AppIcon = settings?.AppIcon ?? "";
@@ -255,9 +209,7 @@ app.on('ready', createWindow);
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if(settingsCache) {
-    settingsCache = null;
-  }
+  settingsService.clearSettings();
 
   if(webContentsView) {
     webContentsView = null;
@@ -282,7 +234,7 @@ app.on('activate', () => {
 });
 
 ipcMain.handle('read-settings', async () : Promise<ISettingsDefinition | null> => {
-  return readSettings();
+  return settingsService.readSettings();
 });
 
 ipcMain.handle('select-file', async (event, opts: IFileDialogOptions) => {
@@ -292,13 +244,7 @@ ipcMain.handle('select-file', async (event, opts: IFileDialogOptions) => {
 });
 
 ipcMain.handle('save-settings', async (event, settings: ISettingsDefinition) => {
-  try {
-    const outPath = path.join(process.cwd(), 'settings.json');
-    await fs.promises.writeFile(outPath, typeof settings === 'string' ? settings : JSON.stringify(settings, null, 2), 'utf8');
-    return { ok: true, path: outPath } as ISaveSettingsResult;
-  } catch (err) {
-    return { ok: false, error: String(err) } as ISaveSettingsResult;
-  }
+  return settingsService.saveSettings(settings);
 });
 
 ipcMain.handle('log', (event, message: string) => {
