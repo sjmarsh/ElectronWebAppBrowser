@@ -5,7 +5,7 @@ import fs from 'fs';
 
 import { IFileDialogOptions } from './types/IFileDialogOptions.js';
 import { ISettingsDefinition } from './types/ISettingsDefinition.js';
-import settingsService from './settings/settingsService';
+import settingsService from './services/settingsService.js';
 import isUp from './utils/isUp';
 import simpleLogger from './utils/simpleLogger';
 import waitForUrl from './utils/waitForUrl';
