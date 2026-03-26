@@ -115,7 +115,7 @@ const createWindow = (): void => {
     mainWindow.setProgressBar(0.3);
     
     webAppService.startWebApp().then((res: boolean) => {
-      simpleLogger.logDetail('Start Web App result:', res);
+      simpleLogger.logDetail('Start Web App result:', res); // todo: make the result more detailed. currently the result is just a boolean.  
       if(res) {
         createWebContentsView();
         setWebContentsDimensions();
@@ -136,11 +136,10 @@ const createWindow = (): void => {
       }
       else {
         simpleLogger.log('Web App not started. Cannot browse to app url.');
+        mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY); // revert to basic html content
       }
     })
   })
-  // and load the index.html of the app.  Commented out as not required if using WebContentsView in full screen.
-  //mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);  
 };
 
 function setWebContentsDimensions() {
