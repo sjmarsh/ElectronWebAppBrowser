@@ -8,6 +8,7 @@ class SettingsRenderer {
 
     private async init() {
       const getById = (id: string)=> document.getElementById(id);
+      const frmSettings = getById('frmSettings') as HTMLFormElement | null;
       const txtAppDisplayName = getById('txtAppDisplayName') as HTMLInputElement | null;
       const txtAppPath = getById('txtAppPath') as HTMLInputElement | null;
       const txtExecutableName = getById('txtExecutableName') as HTMLInputElement | null;
@@ -19,29 +20,37 @@ class SettingsRenderer {
       const btnSaveSettings = getById('btnSaveSettings') as HTMLButtonElement | null;
       const btnCancel = getById('btnCancel') as HTMLButtonElement | null;
 
-      if (!txtAppDisplayName || !txtAppPath || !txtExecutableName || !chkHideConsoleWindow || !txtAppUrl || !txtAppIcon || !btnBrowseAppPath || !btnBrowseAppIcon || !btnSaveSettings || !btnCancel) {
+      if (!frmSettings || !txtAppDisplayName || !txtAppPath || !txtExecutableName || !chkHideConsoleWindow || !txtAppUrl || !txtAppIcon || !btnBrowseAppPath || !btnBrowseAppIcon || !btnSaveSettings || !btnCancel) {
         throw new Error('Required DOM elements not found');
       }
 
       window.electronAPI.log('Settings Renderer initialized - logged with api');
 
-      try {
-        // load settings
-        const settings = await window.electronAPI.readSettings();
-        if(settings) {
-          if (txtAppDisplayName) txtAppDisplayName.value = settings.AppDisplayName;
-          if (txtAppPath) txtAppPath.value = settings.AppPath;
-          if (txtExecutableName) txtExecutableName.value = settings.ExecutableName;
-          if (chkHideConsoleWindow) chkHideConsoleWindow.checked = settings.HideConsoleWindow;
-          if (txtAppUrl) txtAppUrl.value = settings.AppUrl;
-          if (txtAppIcon) txtAppIcon.value = settings.AppIcon;
+      // add validation messages
+      this.setValidationMessage(txtAppPath, 'Please select or enter a valid path for the Web Application');
+      this.setValidationMessage(txtExecutableName, 'Please select or enter a valid executalbe name for the Web Application');
+      this.setValidationMessage(txtAppUrl, 'Please enter a valid URL for the Web Application');
+
+      const populateSettings = async () => {
+        try {
+          // load settings
+          const settings = await window.electronAPI.readSettings();
+          if(settings) {
+            if (txtAppDisplayName) txtAppDisplayName.value = settings.AppDisplayName;
+            if (txtAppPath) txtAppPath.value = settings.AppPath;
+            if (txtExecutableName) txtExecutableName.value = settings.ExecutableName;
+            if (chkHideConsoleWindow) chkHideConsoleWindow.checked = settings.HideConsoleWindow;
+            if (txtAppUrl) txtAppUrl.value = settings.AppUrl;
+            if (txtAppIcon) txtAppIcon.value = settings.AppIcon;
+          }
+          else {
+            window.electronAPI.log('No existing settings.')
+          }
+        } catch (err) {
+            window.electronAPI.logErrorDetail('Failed to load settings:', err);
         }
-        else {
-          window.electronAPI.log('No existing settings.')
-        }
-      } catch (err) {
-          window.electronAPI.logErrorDetail('Failed to load settings:', err);
       }
+      await populateSettings();
 
       btnBrowseAppPath.addEventListener('click', async () => {
         const fileResult = await window.electronAPI.selectFile({ filters: [{ name: 'Executables', extensions: ['exe', '*'] }] });
@@ -68,7 +77,7 @@ class SettingsRenderer {
         if (file) txtAppIcon.value = file;
       });
 
-      btnSaveSettings.addEventListener('click', async () => {
+      frmSettings.addEventListener('submit', async () => {
         const settings: ISettingsDefinition = {
           AppDisplayName: txtAppDisplayName.value || '',
           AppPath: txtAppPath.value || '',
@@ -86,7 +95,19 @@ class SettingsRenderer {
         }
       });
 
-      btnCancel.addEventListener('click', () => window.electronAPI.closeSettingsWindow());
+      btnCancel.addEventListener('click', async () => { 
+        await populateSettings();
+        window.electronAPI.closeSettingsWindow() 
+      });
+    }
+
+    private setValidationMessage = (el: HTMLInputElement, message: string) => {
+      el.oninvalid = (ev: Event) => {
+        el.setCustomValidity(message);
+      }
+      el.onblur = (ev: Event) => {
+        el.setCustomValidity('');
+      }
     }
 }
 

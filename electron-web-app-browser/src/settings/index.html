@@ -13,34 +13,35 @@
 </head>
 <body>
   <h2>Settings</h2>
+  <form id="frmSettings">
+    <label>Web App Display Name</label>
+    <input id="txtAppDisplayName" type="text" />
 
-  <label>Web App Display Name</label>
-  <input id="txtAppDisplayName" type="text" />
+    <label>Web App Root Path</label>
+    <div class="row">
+      <input id="txtAppPath" type="text" required />
+      <button id="btnBrowseAppPath">Browse...</button>
+    </div>
 
-  <label>Web App Root Path</label>
-  <div class="row">
-    <input id="txtAppPath" type="text" />
-    <button id="btnBrowseAppPath">Browse...</button>
-  </div>
+    <label>Web App Executable</label>
+    <input id="txtExecutableName" type="text" required />
 
-  <label>Web App Executable</label>
-  <input id="txtExecutableName" type="text" />
+    <label><input id="chkHideConsoleWindow" type="checkbox" /> Hide Console Window?</label>
 
-  <label><input id="chkHideConsoleWindow" type="checkbox" /> Hide Console Window?</label>
+    <label>Web App URL</label>
+    <input id="txtAppUrl" type="text" required />
 
-  <label>Web App URL</label>
-  <input id="txtAppUrl" type="text" />
+    <label>Web App Icon</label>
+    <div class="row">
+      <input id="txtAppIcon" type="text" />
+      <button id="btnBrowseAppIcon">Browse...</button>
+    </div>
 
-  <label>Web App Icon</label>
-  <div class="row">
-    <input id="txtAppIcon" type="text" />
-    <button id="btnBrowseAppIcon">Browse...</button>
-  </div>
-
-  <div class="actions">
-    <button id="btnCancel">Cancel</button>
-    <button id="btnSaveSettings">💾 Save Settings</button>
-  </div>
-
+    <div class="actions">
+      <button id="btnCancel">Cancel</button>
+      <button id="btnSaveSettings" type="submit">💾 Save Settings</button>
+    </div>
+  </form>
+  
 </body>
 </html>
