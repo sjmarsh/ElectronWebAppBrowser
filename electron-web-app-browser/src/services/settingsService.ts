@@ -3,7 +3,7 @@ import fs from 'fs';
 
 import { ISettingsDefinition } from '../types/ISettingsDefinition.js';
 import { ISaveSettingsResult } from '../types/ISaveSettingsResult.js';
-import simpleLogger from '../utils/simpleLogger.js';
+import simpleLogger from '../utils/simpleLogger';
 
 let settingsCache: ISettingsDefinition | null = null;
 

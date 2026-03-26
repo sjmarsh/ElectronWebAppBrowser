@@ -1,12 +1,9 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem, WebContentsView  } from 'electron';
-import { ChildProcess, spawn } from 'child_process';
-import path from 'path'
-import fs from 'fs';
 
 import { IFileDialogOptions } from './types/IFileDialogOptions.js';
 import { ISettingsDefinition } from './types/ISettingsDefinition.js';
-import settingsService from './services/settingsService.js';
-import isUp from './utils/isUp';
+import settingsService from './services/settingsService';
+import webAppService from './services/webAppService';
 import simpleLogger from './utils/simpleLogger';
 import waitForUrl from './utils/waitForUrl';
 
@@ -17,9 +14,6 @@ declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 declare const SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 declare const SETTINGS_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
-
-
-let dotNetProcess: ChildProcess | null = null; 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -94,52 +88,6 @@ const closeSettings = () => {
   }
 }
 
-const startApiService = async (): Promise<boolean> => {
-  simpleLogger.log('Starting API Service');
-  let isStarted = false;
-  const settings = await settingsService.readSettings();
-  if(settings) {
-    isStarted = await isUp(settings.AppUrl);
-    if(isStarted) {
-      simpleLogger.log(`Service is already running at ${settings.AppUrl}`);
-    }
-    else {
-      if(settings.AppPath && settings.ExecutableName) {
-        
-        if(process.platform === 'linux' || process.platform === 'win32') {
-          const out = fs.openSync(path.join(__dirname, 'out.log'), 'a');
-          const err = fs.openSync(path.join(__dirname, 'out.log'), 'a');
-          try {
-            const exePath = path.join(settings.AppPath, settings.ExecutableName);
-            simpleLogger.log(`Attempting to start API Service at ${exePath} on ${process.platform} platform.`);
-            dotNetProcess = spawn(exePath, { 
-              cwd: settings.AppPath,
-              shell: !settings.HideConsoleWindow,
-              detached: true,
-              stdio: [ 'ignore', out, err ]
-            });
-            dotNetProcess.unref();
-            simpleLogger.log(`Spawned child proces with PID: ${dotNetProcess.pid}`);
-            isStarted = true;
-          } catch(error) {
-            simpleLogger.errorDetail("Failed to spawn child process", error);
-          }    
-        }
-        else {
-          simpleLogger.error(`Platform: ${process.platform} is not supported.`);
-        }
-
-      }
-    }
-    
-    return isStarted;
-  }
-  else {
-    simpleLogger.error('Settings were not available.  Cannot start API.');
-    return false;
-  }
-}
-
 let webContentsView: WebContentsView | null = null;
 const createWebContentsView = (): void => {
   if(!webContentsView) {
@@ -166,8 +114,8 @@ const createWindow = (): void => {
     });
     mainWindow.setProgressBar(0.3);
     
-    startApiService().then((res: boolean) => {
-      simpleLogger.logDetail('api service res:', res);
+    webAppService.startWebApp().then((res: boolean) => {
+      simpleLogger.logDetail('Start Web App result:', res);
       if(res) {
         createWebContentsView();
         setWebContentsDimensions();
@@ -187,7 +135,7 @@ const createWindow = (): void => {
         });
       }
       else {
-        simpleLogger.log('Service not started. Cannot display web app.');
+        simpleLogger.log('Web App not started. Cannot browse to app url.');
       }
     })
   })
@@ -215,10 +163,7 @@ app.on('window-all-closed', () => {
     webContentsView = null;
   }
 
-  if(dotNetProcess) {
-    dotNetProcess.kill();
-    dotNetProcess = null;
-  }
+  webAppService.clearWebAppProcess();
 
   if (process.platform !== 'darwin') {
     app.quit();
@@ -270,5 +215,3 @@ ipcMain.handle('open-settings-window', () => {
 ipcMain.handle('close-settings-window', () => {
   closeSettings();
 });
-
-
