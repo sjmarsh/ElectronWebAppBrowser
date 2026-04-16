@@ -15,6 +15,9 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 declare const SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 declare const SETTINGS_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
+let mainWindow: BrowserWindow | null = null;
+let settingsWindow: BrowserWindow | null = null;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -49,8 +52,11 @@ const submenu = Menu.buildFromTemplate([
 menu.append(new MenuItem({ label: 'File', submenu }));
 Menu.setApplicationMenu(menu);
 
-let settingsWindow: BrowserWindow | null = null;
 const openSettings = async () => {
+  if(!mainWindow) {
+    simpleLogger.error('Cannot show settings window if main window does not exist');
+    return;
+  }
   if (settingsWindow && !settingsWindow.isDestroyed()) {
     settingsWindow.show();
     settingsWindow.focus();
@@ -73,6 +79,10 @@ const openSettings = async () => {
   settingsWindow.removeMenu();
   settingsWindow.loadURL(SETTINGS_WINDOW_WEBPACK_ENTRY);
   settingsWindow.once('ready-to-show', () => {
+    if(!settingsWindow) {
+      simpleLogger.error('Settings Window does not exist.  Cannot show.');
+      return;
+    }
     settingsWindow.show();
   });
   settingsWindow.on('closed', () => { 
@@ -95,9 +105,12 @@ const createWebContentsView = (): void => {
   }
 }
 
-let mainWindow: BrowserWindow | null = null;
+
 const createWindow = (): void => {
-  settingsService.readSettings().then((value: ISettingsDefinition) => {
+  settingsService.readSettings().then((value: ISettingsDefinition | null) => {
+    if(!value) {
+      simpleLogger.log('No settings provided.  Using default settings.');
+    }
     const settings = {...value} as ISettingsDefinition;
     settings.AppDisplayName = settings?.AppDisplayName ?? "Web Application Browser";
     settings.AppIcon = settings?.AppIcon ?? "";
@@ -116,6 +129,10 @@ const createWindow = (): void => {
     
     webAppService.startWebApp().then((res: boolean) => {
       simpleLogger.logDetail('Start Web App result:', res); // todo: make the result more detailed. currently the result is just a boolean.  
+      if(!mainWindow) {
+        simpleLogger.error('MainWindow is undefined');
+        return;
+      }
       if(res) {
         createWebContentsView();
         setWebContentsDimensions();
@@ -125,6 +142,14 @@ const createWindow = (): void => {
         mainWindow.setProgressBar(.5);
         waitForUrl(settings.AppUrl, 1000, 10).then((res) => {
           simpleLogger.log(`Setting web contents url to: ${settings.AppUrl}`);
+          if(!webContentsView) {
+            simpleLogger.error('WebContentsView is undefined');
+            return;
+          }
+          if(!mainWindow) {
+            simpleLogger.error('MainWindow is undefined');
+            return;
+          }
           webContentsView.webContents.loadURL(settings.AppUrl); 
           mainWindow.setProgressBar(1);
           mainWindow.contentView.addChildView(webContentsView);
@@ -143,8 +168,12 @@ const createWindow = (): void => {
 };
 
 function setWebContentsDimensions() {
-  const { width, height } = mainWindow.getBounds();
-  webContentsView.setBounds({ x: 0, y: 0, width: width, height: height });
+  if(mainWindow && webContentsView) {
+    const { width, height } = mainWindow.getBounds();
+    webContentsView.setBounds({ x: 0, y: 0, width: width, height: height });
+  } else {
+    simpleLogger.log('Dimensions not set. MainWindow or WebContentsView not defined.');
+  }
 }
 
 // This method will be called when Electron has finished
