@@ -61,7 +61,7 @@ class SettingsRenderer {
           try {
             const parts = file.split(/\\|\//);
             const exe = parts.pop();
-            const dir = parts.join('\\');
+            const dir = parts.join('//');
             txtAppPath.value = dir;
             txtExecutableName.value = exe;
           } catch (e) {
