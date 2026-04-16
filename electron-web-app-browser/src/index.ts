@@ -47,8 +47,16 @@ const submenu = Menu.buildFromTemplate([
     label: 'Developer Tools',
     accelerator: 'CmdOrCtrl+Shift+I',
     click: () => {
-      const windows = BrowserWindow.getAllWindows();
-      windows.forEach(window => window.webContents.openDevTools());
+      if(webContentsView) {
+        // if there is a webContentsView loaded then use it's dev tools
+        webContentsView.webContents.openDevTools({mode: 'detach'});
+      } else {
+        // follow this path when using the default index.html
+        const windows = BrowserWindow.getAllWindows();
+        windows.forEach(window =>  { 
+          window.webContents.openDevTools({ mode: 'detach' });
+        });
+      }
     }
   }
 ]);
@@ -125,7 +133,8 @@ const createWindow = (): void => {
       icon: settings.AppIcon,
       autoHideMenuBar: true,
       webPreferences: {
-        preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY
+        preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+        devTools: true
       }
     });
     mainWindow.setProgressBar(0.3);
