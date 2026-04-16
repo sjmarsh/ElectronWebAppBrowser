@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem, WebContentsView  } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem, WebContentsView, webContents  } from 'electron';
 
 import { IFileDialogOptions } from './types/IFileDialogOptions.js';
 import { ISettingsDefinition } from './types/ISettingsDefinition.js';
@@ -28,10 +28,12 @@ const menu = new Menu();
 const submenu = Menu.buildFromTemplate([
   {
     label: 'Reload',
-    accelerator: 'CmdOrCtrl+R',
+    accelerator: 'F5',
     click: () => {
-      const windows = BrowserWindow.getAllWindows();
-      windows.forEach(window => window.webContents.reload());
+      if(webContentsView && webContentsView.webContents) {
+        simpleLogger.log('Reloading WebContentsView');
+        webContentsView.webContents.reload();
+      }
     }
   },
   {
@@ -123,7 +125,7 @@ const createWindow = (): void => {
       icon: settings.AppIcon,
       autoHideMenuBar: true,
       webPreferences: {
-        preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+        preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY
       }
     });
     mainWindow.setProgressBar(0.3);
