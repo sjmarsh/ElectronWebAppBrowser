@@ -23,9 +23,9 @@ const startWebApp = async (): Promise<IWebAppServiceStatus> => {
     else {
       if(settings.AppPath && settings.ExecutableName) {
         if(process.platform === 'linux' || process.platform === 'win32') {
-          const out = fs.openSync(path.join(__dirname, 'out.log'), 'a');
-          const err = fs.openSync(path.join(__dirname, 'err.log'), 'a');
-          try {
+          try {        
+            const out = fs.openSync(path.join(process.cwd(), 'out.log'), 'a');
+            const err = fs.openSync(path.join(process.cwd(), 'err.log'), 'a');
             const exePath = path.join(settings.AppPath, settings.ExecutableName);
             simpleLogger.log(`Attempting to start Web App API Service at ${exePath} on ${process.platform} platform.`);
             webAppProcess = spawn(exePath, { 
