@@ -121,6 +121,7 @@ const createWindow = (): void => {
       width: 800,
       title: appTitleLoading,
       icon: settings.AppIcon,
+      autoHideMenuBar: true,
       webPreferences: {
         preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       }
