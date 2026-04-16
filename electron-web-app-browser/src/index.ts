@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem, WebContentsView  }
 
 import { IFileDialogOptions } from './types/IFileDialogOptions.js';
 import { ISettingsDefinition } from './types/ISettingsDefinition.js';
+import { IWebAppServiceStatus } from './types/IWebAppServiceStatus.js';
 import settingsService from './services/settingsService';
 import webAppService from './services/webAppService';
 import simpleLogger from './utils/simpleLogger';
@@ -105,7 +106,6 @@ const createWebContentsView = (): void => {
   }
 }
 
-
 const createWindow = (): void => {
   settingsService.readSettings().then((value: ISettingsDefinition | null) => {
     if(!value) {
@@ -127,13 +127,13 @@ const createWindow = (): void => {
     });
     mainWindow.setProgressBar(0.3);
     
-    webAppService.startWebApp().then((res: boolean) => {
-      simpleLogger.logDetail('Start Web App result:', res); // todo: make the result more detailed. currently the result is just a boolean.  
+    webAppService.startWebApp().then((webAppServiceStatus: IWebAppServiceStatus) => {
+      simpleLogger.logDetail('Start Web App result:', webAppServiceStatus); 
       if(!mainWindow) {
         simpleLogger.error('MainWindow is undefined');
         return;
       }
-      if(res) {
+      if(webAppServiceStatus && webAppServiceStatus.isRunning) {
         createWebContentsView();
         setWebContentsDimensions();
         mainWindow.on('resize', () => {
@@ -160,7 +160,10 @@ const createWindow = (): void => {
         });
       }
       else {
-        simpleLogger.log('Web App not started. Cannot browse to app url.');
+        simpleLogger.error('Web App not started. Cannot browse to app url.');
+        if(webAppServiceStatus.error) {
+          simpleLogger.error(`WebAppService error: ${webAppServiceStatus.error}`);
+        }
         mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY); // revert to basic html content
       }
     })

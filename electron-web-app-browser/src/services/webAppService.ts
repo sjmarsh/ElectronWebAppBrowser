@@ -2,27 +2,29 @@ import { ChildProcess, spawn } from 'child_process';
 import path from 'path'
 import fs from 'fs';
 
+import { IWebAppServiceStatus } from '../types/IWebAppServiceStatus.js';
 import settingsService from './settingsService';
 import simpleLogger from '../utils/simpleLogger';
 import isUp from '../utils/isUp';
 
 let webAppProcess : ChildProcess | null = null;
 
-const startWebApp = async (): Promise<boolean> => {
+const startWebApp = async (): Promise<IWebAppServiceStatus> => {
   simpleLogger.log('Starting Web App');
-  let isStarted = false;
+  let status: IWebAppServiceStatus = {
+    isRunning: false
+  }
   const settings = await settingsService.readSettings();
   if(settings) {
-    isStarted = await isUp(settings.AppUrl);
-    if(isStarted) {
+    status.isRunning = await isUp(settings.AppUrl);
+    if(status.isRunning) {
       simpleLogger.log(`Web App is already running at ${settings.AppUrl}`);
     }
     else {
       if(settings.AppPath && settings.ExecutableName) {
-        
         if(process.platform === 'linux' || process.platform === 'win32') {
           const out = fs.openSync(path.join(__dirname, 'out.log'), 'a');
-          const err = fs.openSync(path.join(__dirname, 'out.log'), 'a');
+          const err = fs.openSync(path.join(__dirname, 'err.log'), 'a');
           try {
             const exePath = path.join(settings.AppPath, settings.ExecutableName);
             simpleLogger.log(`Attempting to start Web App API Service at ${exePath} on ${process.platform} platform.`);
@@ -34,24 +36,21 @@ const startWebApp = async (): Promise<boolean> => {
             });
             webAppProcess.unref();
             simpleLogger.log(`Spawned child proces with PID: ${webAppProcess.pid}`);
-            isStarted = true;
+            status.isRunning = true;
           } catch(error) {
-            simpleLogger.errorDetail("Failed to spawn child process", error);
+            status.error = `Failed to spawn child process. ${error}`;
           }    
         }
         else {
-          simpleLogger.error(`Platform: ${process.platform} is not supported.`);
+          status.error = `Platform: ${process.platform} is not supported.`;
         }
-
       }
     }
-    
-    return isStarted;
   }
   else {
-    simpleLogger.error('Settings were not available.  Cannot start Web App.');
-    return false;
+    status.error = 'Settings were not available.  Cannot start Web App.';
   }
+  return status;
 }
 
 const clearWebAppProcess = () => {
