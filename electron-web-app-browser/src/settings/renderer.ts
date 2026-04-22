@@ -5,7 +5,7 @@ class SettingsRenderer {
         // Initialization code if needed
         this.init();
     }
-
+    
     private async init() {
       const getById = (id: string)=> document.getElementById(id);
       const frmSettings = getById('frmSettings') as HTMLFormElement | null;
@@ -77,7 +77,8 @@ class SettingsRenderer {
         if (file) txtAppIcon.value = file;
       });
 
-      frmSettings.addEventListener('submit', async () => {
+      frmSettings.addEventListener('submit', async (e: Event) => {
+        e.preventDefault();
         const settings: ISettingsDefinition = {
           AppDisplayName: txtAppDisplayName.value || '',
           AppPath: txtAppPath.value || '',
