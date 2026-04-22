@@ -6,10 +6,7 @@ const tsJestTransformCfg = createDefaultPreset().transform;
 export default {
   testEnvironment: "node",
   globals: {
-      extensionsToTreatAsEsm: ['.ts', '.js'],
-      'ts-jest': {
-          useESM: true
-      }
+      extensionsToTreatAsEsm: ['.ts', '.js']
   },
   preset: 'ts-jest/presets/js-with-ts-esm',
   transform: {
