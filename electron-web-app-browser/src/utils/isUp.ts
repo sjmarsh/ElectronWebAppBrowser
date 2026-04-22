@@ -6,7 +6,7 @@ const isUp = (url: string) : Promise<boolean> => {
     const request = http.request(url, { method: 'HEAD' }, (response) => {
       const statusCode = response.statusCode;
       // Consider 2xx, 3xx codes as reachable (server is responding)
-      if (statusCode >= 200 && statusCode < 400) {
+      if (statusCode && statusCode >= 200 && statusCode < 400) {
         logger.log(`Service at ${url} is up (status code: ${statusCode})`);
         resolve(true);
       } else {
