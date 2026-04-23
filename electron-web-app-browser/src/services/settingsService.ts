@@ -45,6 +45,9 @@ const readSettings = async () : Promise<ISettingsDefinition | null> => {
             }
           }
         }
+        else {
+          simpleLogger.error(`Settings file not found at: ${p}`);
+        }
       } catch (e) {
         simpleLogger.errorDetail('Unable to read settings file.', e);
       }
