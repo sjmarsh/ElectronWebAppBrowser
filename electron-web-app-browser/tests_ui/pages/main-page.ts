@@ -1,6 +1,5 @@
-import { Locator, Page, _electron as electron, ElectronApplication } from '@playwright/test';
+import {  Page, ElectronApplication } from '@playwright/test';
 import { SettingsPage } from './settings-page';
-import { MenuItem } from 'electron';
 
 export class MainPage {
     readonly electronApp: ElectronApplication

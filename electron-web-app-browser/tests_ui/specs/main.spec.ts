@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test'
-import { test } from './fixture'
+import { test } from '../fixture'
 
 
 // simple 'do nothing' test to ensure test framework is working

@@ -1,5 +1,6 @@
 import { _electron as electron, test as base, expect, ElectronApplication, Page } from '@playwright/test'
 import { MainPage } from './pages/main-page';
+import { SettingsPage } from './pages/settings-page';
 
 type MyFixtures = {
   electronApp: any;
