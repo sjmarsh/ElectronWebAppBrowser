@@ -44,10 +44,12 @@ export class MainPage {
         this.settingsDialog = new SettingsPage(settingsDialog, this.electronApp);
     }
 
-    clickSettingsButton = async () => {
+    clickSettingsButton = async (waitForWindow: boolean = true) => {
         const settingsButton = this.page.getByRole('button', { name: 'Open Settings' });
         await settingsButton.click();
-        const settingsWindow = await this.electronApp.waitForEvent('window');
-        this.settingsDialog = new SettingsPage(settingsWindow, this.electronApp);
+        if(waitForWindow) {  // only need first time because it is hidden all other times.
+            const settingsWindow = await this.electronApp.waitForEvent('window');
+            this.settingsDialog = new SettingsPage(settingsWindow, this.electronApp);
+        }        
     }
 }

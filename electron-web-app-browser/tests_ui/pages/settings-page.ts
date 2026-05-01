@@ -1,4 +1,4 @@
-import { Locator, Page, _electron as electron, ElectronApplication } from '@playwright/test';
+import { Locator, Page, ElectronApplication } from '@playwright/test';
 
 export class SettingsPage {
     readonly electronApp: ElectronApplication
@@ -17,33 +17,105 @@ export class SettingsPage {
         await this.page.close();
     }
 
+    private webAppDisplayName = () : Locator => {
+        return this.page.locator('#txtAppDisplayName');  // note: find by label was not working so reverted to ids
+    }
     webAppDisplayNameText = async () : Promise<string> => {
-        const locator = this.page.locator('#txtAppDisplayName');
-        return await locator.innerText();
+        const locator = this.webAppDisplayName();
+        return await locator.innerText(); 
+    }
+
+    enterWebAppDisplayNameText = async (text: string) => {
+        const locator = this.webAppDisplayName();
+        await locator.fill(text);
+    }
+
+    private webAppRootPath = () : Locator => {
+        return this.page.locator('#txtAppPath');
     }
 
     webAppRootPathText = async () : Promise<string> => {
-        const locator = this.page.locator('#txtAppPath');
+        const locator = this.webAppRootPath();
         return await locator.innerText();
+    }
+
+    enterWebAppRootPathText = async (text: string) => {
+        const locator = this.webAppRootPath();
+        await locator.fill(text);
+    }
+
+    private webAppExecutable = () : Locator => {
+        return this.page.locator('#txtExecutableName');
     }
 
     webAppExecutableText = async () : Promise<string> => {
-        const locator = this.page.locator('#txtExecutableName');
+        const locator = this.webAppExecutable();
         return await locator.innerText();
+    }
+
+    enterWebAppExecutableText = async (text: string) => {
+        const locator = this.webAppExecutable();
+        await locator.fill(text);
+    }
+
+    private hideConsoleWindowCheckBox = () : Locator => {
+        return this.page.locator('#chkHideConsoleWindow')
     }
 
     hideConsoleWindowIsChecked = async () : Promise<boolean> => {
-        const locator = this.page.locator('#chkHideConsoleWindow')
+        const locator = this.hideConsoleWindowCheckBox();
         return await locator.isChecked();
     }
 
+    checkHideConsoleWindow = async (isChecked: boolean) => {
+        const locator = this.hideConsoleWindowCheckBox();
+        await locator.setChecked(isChecked);
+    }
+
+    private webAppUrl = () : Locator => {
+        return this.page.locator('#txtAppUrl');
+    }
+
     webAppUrlText = async () : Promise<string> => {
-        const locator = this.page.locator('#txtAppUrl');
+        const locator = this.webAppUrl();
         return await locator.innerText();
     }
 
+    enterWebAppUrlText = async (text: string) => {
+        const locator = this.webAppUrl();
+        await locator.fill(text);
+    }
+
+    private webAppIcon = () : Locator => {
+        return this.page.locator('#txtAppIcon');
+    }
+
     webAppIconText = async () : Promise<string> => {
-        const locator = this.page.locator('#txtAppIcon');
+        const locator = this.webAppIcon();
         return await locator.innerText();
+    }
+
+    enterWebAppIconText = async (text: string) => {
+        const locator = this.webAppIcon();
+        await locator.fill(text);
+    }
+
+    private saveSettingsButton = () : Locator => {
+        return this.page.locator('#btnSaveSettings');
+    }
+
+    saveSettingsButtonText = async () : Promise<string> => {
+        const locator = this.saveSettingsButton();
+        return await locator.textContent() ?? '';
+    }
+
+    saveSettingsButtonClick = async () => {
+        const locator = this.saveSettingsButton();
+        await locator.click();
+    }
+
+    cancelButtonClick = async () => {
+        const locator = this.page.locator('#btnCancel');
+        await locator.click();
     }
 }
