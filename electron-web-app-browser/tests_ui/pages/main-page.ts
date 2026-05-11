@@ -14,6 +14,11 @@ export class MainPage {
         this.settingsDialog = null;
     }
 
+    // for debugging use only!
+    waitForTimeout = async () => {
+        await this.page.waitForTimeout(5000);
+    }
+
     initMenu = async () => {
         this.menu = await this.electronApp.evaluate(async ({ Menu }) => {
             return Menu.getApplicationMenu();
@@ -50,6 +55,6 @@ export class MainPage {
         if(waitForWindow) {  // only need first time because it is hidden all other times.
             const settingsWindow = await this.electronApp.waitForEvent('window');
             this.settingsDialog = new SettingsPage(settingsWindow, this.electronApp);
-        }        
+        } 
     }
 }

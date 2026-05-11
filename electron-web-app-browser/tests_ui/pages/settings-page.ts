@@ -10,7 +10,7 @@ export class SettingsPage {
     }
     
     isVisible = () => {
-        return this.page.isVisible;
+        return !this.page.isHidden('#txtAppDisplayName');
     }
 
     close = async () => {
@@ -22,7 +22,7 @@ export class SettingsPage {
     }
     webAppDisplayNameText = async () : Promise<string> => {
         const locator = this.webAppDisplayName();
-        return await locator.innerText(); 
+        return await locator.inputValue(); 
     }
 
     enterWebAppDisplayNameText = async (text: string) => {
@@ -36,7 +36,7 @@ export class SettingsPage {
 
     webAppRootPathText = async () : Promise<string> => {
         const locator = this.webAppRootPath();
-        return await locator.innerText();
+        return await locator.inputValue();
     }
 
     enterWebAppRootPathText = async (text: string) => {
@@ -50,7 +50,7 @@ export class SettingsPage {
 
     webAppExecutableText = async () : Promise<string> => {
         const locator = this.webAppExecutable();
-        return await locator.innerText();
+        return await locator.inputValue();
     }
 
     enterWebAppExecutableText = async (text: string) => {
@@ -78,7 +78,7 @@ export class SettingsPage {
 
     webAppUrlText = async () : Promise<string> => {
         const locator = this.webAppUrl();
-        return await locator.innerText();
+        return await locator.inputValue();
     }
 
     enterWebAppUrlText = async (text: string) => {
@@ -92,7 +92,7 @@ export class SettingsPage {
 
     webAppIconText = async () : Promise<string> => {
         const locator = this.webAppIcon();
-        return await locator.innerText();
+        return await locator.inputValue();
     }
 
     enterWebAppIconText = async (text: string) => {

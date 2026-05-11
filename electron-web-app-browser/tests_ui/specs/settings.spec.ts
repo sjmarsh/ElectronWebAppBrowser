@@ -67,8 +67,13 @@ test.describe('Settings Tests', () => {
         expect(await mainPage.settingsDialog?.webAppIconText()).toBe('');
     });
 
+    test('it should close settings window on cancel', async ({mainPage}) => {
+        await mainPage.settingsDialog?.cancelButtonClick();     
+        expect(mainPage.settingsDialog?.isVisible()).toBeFalsy();
+    })
 
-    test.only('it should save valid settings', async ({mainPage}) => {
+
+    test('it should save valid settings', async ({mainPage}) => {
         await mainPage.settingsDialog?.enterWebAppDisplayNameText(testSettings.AppDisplayName);
         await mainPage.settingsDialog?.enterWebAppRootPathText(testSettings.AppPath);
         await mainPage.settingsDialog?.enterWebAppExecutableText(testSettings.ExecutableName);
@@ -82,6 +87,7 @@ test.describe('Settings Tests', () => {
         expect(await mainPage.settingsDialog?.saveSettingsButtonText()).toContain('Saved');
         await waitForSettingsToSave();
         await mainPage.settingsDialog?.cancelButtonClick();
+        expect(mainPage.settingsDialog?.isVisible()).toBeFalsy();
 
         await mainPage.clickSettingsButton(false);
         
