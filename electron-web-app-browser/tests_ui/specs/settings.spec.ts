@@ -84,7 +84,7 @@ test.describe('Settings Tests', () => {
         expect(await mainPage.settingsDialog?.saveSettingsButtonText()).toContain('Save Settings');
 
         await mainPage.settingsDialog?.saveSettingsButtonClick();
-        expect(await mainPage.settingsDialog?.saveSettingsButtonText()).toContain('Saved');
+        expect(await mainPage.settingsDialog?.saveSettingsButtonText()).toContain('Saved'); // button label should update to indicate saved
         await waitForSettingsToSave();
         await mainPage.settingsDialog?.cancelButtonClick();
         expect(mainPage.settingsDialog?.isVisible()).toBeFalsy();
@@ -98,4 +98,31 @@ test.describe('Settings Tests', () => {
         expect(await mainPage.settingsDialog?.webAppUrlText()).toBe(testSettings.AppUrl);
         expect(await mainPage.settingsDialog?.webAppIconText()).toBe(testSettings.AppIcon);
     });
+
+    test('it should not save invalid settings', async ({mainPage}) => {
+        await mainPage.settingsDialog?.enterWebAppDisplayNameText(testSettings.AppDisplayName);
+        await mainPage.settingsDialog?.enterWebAppRootPathText('');  // intentionally leave required field blank
+        await mainPage.settingsDialog?.enterWebAppExecutableText(testSettings.ExecutableName);
+        await mainPage.settingsDialog?.checkHideConsoleWindow(testSettings.HideConsoleWindow);
+        await mainPage.settingsDialog?.enterWebAppUrlText(testSettings.AppUrl);
+        await mainPage.settingsDialog?.enterWebAppIconText(testSettings.AppIcon);
+
+        expect(await mainPage.settingsDialog?.saveSettingsButtonText()).toContain('Save Settings');
+
+        await mainPage.settingsDialog?.saveSettingsButtonClick();
+        expect(await mainPage.settingsDialog?.saveSettingsButtonText()).toContain('Save Settings');  // button label should remain unchanged
+        
+        await mainPage.settingsDialog?.cancelButtonClick();
+        expect(mainPage.settingsDialog?.isVisible()).toBeFalsy();
+
+        await mainPage.clickSettingsButton(false);
+        
+        expect(await mainPage.settingsDialog?.webAppDisplayNameText()).toBe(testSettings.AppDisplayName);
+        expect(await mainPage.settingsDialog?.webAppRootPathText()).toBe('');  // should still be blank
+        expect(await mainPage.settingsDialog?.webAppExecutableText()).toBe(testSettings.ExecutableName);
+        expect(await mainPage.settingsDialog?.hideConsoleWindowIsChecked()).toBe(testSettings.HideConsoleWindow)
+        expect(await mainPage.settingsDialog?.webAppUrlText()).toBe(testSettings.AppUrl);
+        expect(await mainPage.settingsDialog?.webAppIconText()).toBe(testSettings.AppIcon);
+    });
+
 });
