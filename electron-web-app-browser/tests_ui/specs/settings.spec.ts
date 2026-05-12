@@ -8,36 +8,6 @@ import { ISettingsDefinition } from '../../src/types/ISettingsDefinition';
 
 const settingsFilePath = path.join(__dirname, '../../out/electron-web-app-browser-win32-x64/settings.json');
 
-const clearSavedSettingsFile = () => {
-    // Check if file exists before trying to delete it
-    if (fs.existsSync(settingsFilePath)) {
-        fs.unlinkSync(settingsFilePath);
-        console.log(`Deleted file: ${settingsFilePath}`);
-    }
-    else {
-        console.log('file does not exist');
-    }
-}
-
-const waitForSettingsToSave = async () => {
-    await expect.poll(() => fs.existsSync(settingsFilePath), {
-        message: 'File did not save in time',
-        timeout: 10000,
-        }).toBeTruthy();
-}
-
-const openSettings = async (mainPage: MainPage) => {
-    await mainPage.clickSettingsButton();
-    expect(mainPage.settingsDialog).toBeDefined();
-    expect(mainPage.settingsDialog?.isVisible).toBeTruthy();
-}
-
-const closeSettings = async (mainPage: MainPage) => {
-    expect(mainPage.settingsDialog).toBeDefined();
-    expect(mainPage.settingsDialog?.isVisible).toBeTruthy();
-    await mainPage.settingsDialog?.close();
-}
-
 const testSettings = {
     AppDisplayName: 'The App',
     AppPath: 'c:/temp/theApp/',
@@ -85,7 +55,7 @@ test.describe('Settings Tests', () => {
 
         await mainPage.settingsDialog?.saveSettingsButtonClick();
         expect(await mainPage.settingsDialog?.saveSettingsButtonText()).toContain('Saved'); // button label should update to indicate saved
-        await waitForSettingsToSave();
+        await expectSettingsFileExists();
         await mainPage.settingsDialog?.cancelButtonClick();
         expect(mainPage.settingsDialog?.isVisible()).toBeFalsy();
 
@@ -111,7 +81,8 @@ test.describe('Settings Tests', () => {
 
         await mainPage.settingsDialog?.saveSettingsButtonClick();
         expect(await mainPage.settingsDialog?.saveSettingsButtonText()).toContain('Save Settings');  // button label should remain unchanged
-        
+        await expectSettingsFileDoesNotExist();
+
         await mainPage.settingsDialog?.cancelButtonClick();
         expect(mainPage.settingsDialog?.isVisible()).toBeFalsy();
 
@@ -126,3 +97,43 @@ test.describe('Settings Tests', () => {
     });
 
 });
+
+// helpers
+
+const clearSavedSettingsFile = () => {
+    // Check if file exists before trying to delete it
+    if (fs.existsSync(settingsFilePath)) {
+        fs.unlinkSync(settingsFilePath);
+        console.log(`Deleted file: ${settingsFilePath}`);
+    }
+    else {
+        console.log('file does not exist');
+    }
+}
+
+const expectSettingsFileExists = async () => {
+    await expect.poll(() => fs.existsSync(settingsFilePath), {
+        message: 'File did not save in time',
+        timeout: 10000,
+        }).toBeTruthy();
+}
+
+const expectSettingsFileDoesNotExist = async () => {
+    await expect.poll(() => fs.existsSync(settingsFilePath), {
+        message: 'No File',
+        timeout: 10000,
+        }).toBeFalsy();
+}
+
+const openSettings = async (mainPage: MainPage) => {
+    await mainPage.clickSettingsButton();
+    expect(mainPage.settingsDialog).toBeDefined();
+    expect(mainPage.settingsDialog?.isVisible).toBeTruthy();
+}
+
+const closeSettings = async (mainPage: MainPage) => {
+    expect(mainPage.settingsDialog).toBeDefined();
+    expect(mainPage.settingsDialog?.isVisible).toBeTruthy();
+    await mainPage.settingsDialog?.close();
+}
+
