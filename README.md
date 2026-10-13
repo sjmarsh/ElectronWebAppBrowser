@@ -12,9 +12,12 @@ The application output is written to a log file, `app.log` located in the root p
 Settings for the executable location, url and icon can be accessed using a UI settings sreen (press the F11 key to access) or directly by adding/editing a settings.json file located in the root path of the electron app.
 
 ### Screenshots
+#### Settings Screen
 <img alt="Settings Screen" src="https://github.com/sjmarsh/ElectronWebAppBrowser/blob/main/resources/Settings%20Screenshot.png?raw=true" />
 
-<img alt="Settings Screen" src="https://github.com/sjmarsh/ElectronWebAppBrowser/blob/main/resources/Windows%20Screenshot.png?raw=true" />
+#### Windows Example
+<img alt="Windows Screenshot" src="https://github.com/sjmarsh/ElectronWebAppBrowser/blob/main/resources/Windows%20Screenshot.png?raw=true" />
 
-<img alt="Settings Screen" src="https://github.com/sjmarsh/ElectronWebAppBrowser/blob/main/resources/Linux%20Screenshot.png?raw=true" />
+#### Linux Example
+<img alt="Linux Screenshot" src="https://github.com/sjmarsh/ElectronWebAppBrowser/blob/main/resources/Linux%20Screenshot.png?raw=true" />
 
