@@ -9,7 +9,7 @@ const waitForUrl = async (url: string, retryIntervalMs: number,  maxAttempts: nu
       let attempts = 0;
       const appUrlTimer = setIntervalAsync(async () => {
         simpleLogger.log(`Testing if URL ${url} is ready. Attempt: ${attempts} of ${maxAttempts}`)
-        let isUrlUp = await isUp(url);
+        const isUrlUp = await isUp(url);
         if(isUrlUp) {
           simpleLogger.log('URL is ready. Stop waiting.');
           resolve(true);

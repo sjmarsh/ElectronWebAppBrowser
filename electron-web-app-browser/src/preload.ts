@@ -12,8 +12,10 @@ export interface IElectronAPI {
     openSettingsWindow: () => void;
     closeSettingsWindow: () => void;
     log: (message: string) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     logDetail: (message: string, obj: any) => void;
     logError: (message: string) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     logErrorDetail: (message: string, err: any) => void;
 }
 
@@ -24,7 +26,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     openSettingsWindow: () => ipcRenderer.invoke('open-settings-window'),
     closeSettingsWindow: () => ipcRenderer.invoke('close-settings-window'),
     log: (message: string) => ipcRenderer.invoke('log', message),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     logDetail: (message: string, obj: any) => ipcRenderer.invoke('log-detail', message, obj),
     logError: (message: string)=> ipcRenderer.invoke('log-error', message),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     logErrorDetail: (message: string, err: any)=> ipcRenderer.invoke('log-error-detail', message, err),
 } as IElectronAPI );

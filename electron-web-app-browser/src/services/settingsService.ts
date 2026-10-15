@@ -21,7 +21,7 @@ const readSettings = async () : Promise<ISettingsDefinition | null> => {
     for (const p of candidates) {
       try {
         if (fs.existsSync(p)) {
-          let settingsString =  fs.readFileSync(p, 'utf8');
+          const settingsString =  fs.readFileSync(p, 'utf8');
           simpleLogger.logDetail('Settings String: ', settingsString);
           if(settingsString && settingsString.length > 0){
             let parsed = null;
@@ -29,7 +29,7 @@ const readSettings = async () : Promise<ISettingsDefinition | null> => {
               parsed = JSON.parse(settingsString); 
             } catch (e) { 
               parsed = null; 
-              simpleLogger.error('Unable to parse settings.');
+              simpleLogger.errorDetail('Unable to parse settings.', e);
             }
             if(parsed) {
               settingsCache = {

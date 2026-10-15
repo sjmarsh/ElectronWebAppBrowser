@@ -11,7 +11,7 @@ let webAppProcess : ChildProcess | null = null;
 
 const startWebApp = async (): Promise<IWebAppServiceStatus> => {
   simpleLogger.log('Starting Web App');
-  let status: IWebAppServiceStatus = {
+  const status: IWebAppServiceStatus = {
     isRunning: false
   }
   const settings = await settingsService.readSettings();

@@ -66,6 +66,7 @@ class SettingsRenderer {
             txtExecutableName.value = exe ?? '';
           } catch (e) {
             txtAppPath.value = file;
+            window.electronAPI.logErrorDetail('Failed to parse selected file path:', e);
           }
         }
       });
@@ -103,10 +104,10 @@ class SettingsRenderer {
     }
 
     private setValidationMessage = (el: HTMLInputElement, message: string) => {
-      el.oninvalid = (ev: Event) => {
+      el.oninvalid = () => {
         el.setCustomValidity(message);
       }
-      el.onblur = (ev: Event) => {
+      el.onblur = () => {
         el.setCustomValidity('');
       }
     }

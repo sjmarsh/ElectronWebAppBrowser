@@ -2,7 +2,7 @@ import http from 'http';
 import logger from './simpleLogger'
 
 const isUp = (url: string) : Promise<boolean> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const request = http.request(url, { method: 'HEAD' }, (response) => {
       const statusCode = response.statusCode;
       // Consider 2xx, 3xx codes as reachable (server is responding)
@@ -15,7 +15,7 @@ const isUp = (url: string) : Promise<boolean> => {
       request.destroy(); // End the request early
     });
 
-    request.on('error', (err) => {
+    request.on('error', () => {
       // An error, such as DNS failure, connection timeout, etc.
       resolve(false);
     });

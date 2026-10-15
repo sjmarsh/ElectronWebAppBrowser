@@ -14,6 +14,7 @@ function log(message: string) {
     });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function logDetail(message: string, obj: any) {
     const completeMessage = obj ? `${message} ${JSON.stringify(obj)}` : message;
     log(completeMessage);
@@ -30,6 +31,7 @@ function error(message: string) {
     });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function errorDetail(message: string, err: any) {
     const completeMessage = err ? `${message} ${JSON.stringify(err)}` : message;
     error(completeMessage);

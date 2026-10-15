@@ -1,4 +1,5 @@
-import { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem, WebContentsView, webContents  } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem, WebContentsView  } from 'electron';
+import squirrelStartup from 'electron-squirrel-startup';
 
 import { IFileDialogOptions } from './types/IFileDialogOptions.js';
 import { ISettingsDefinition } from './types/ISettingsDefinition.js';
@@ -20,7 +21,7 @@ let mainWindow: BrowserWindow | null = null;
 let settingsWindow: BrowserWindow | null = null;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
+if (squirrelStartup) {
   app.quit();
 }
 
@@ -124,7 +125,7 @@ const createWindow = (): void => {
     const settings = {...value} as ISettingsDefinition;
     settings.AppDisplayName = settings?.AppDisplayName ?? "Web Application Browser";
     settings.AppIcon = settings?.AppIcon ?? "";
-    let appTitleLoading = `${settings.AppDisplayName} - Loading...`
+    const appTitleLoading = `${settings.AppDisplayName} - Loading...`
     // Create the browser window.
     mainWindow = new BrowserWindow({
       height: 600,
@@ -152,7 +153,7 @@ const createWindow = (): void => {
           setWebContentsDimensions();
         });
         mainWindow.setProgressBar(.5);
-        waitForUrl(settings.AppUrl, 1000, 10).then((res) => {
+        waitForUrl(settings.AppUrl, 1000, 10).then(() => {
           simpleLogger.log(`Setting web contents url to: ${settings.AppUrl}`);
           if(!webContentsView) {
             simpleLogger.error('WebContentsView is undefined');
@@ -239,6 +240,7 @@ ipcMain.handle('log', (event, message: string) => {
   simpleLogger.log(message);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ipcMain.handle('log-detail', (event, message: string, obj: any) => {
   simpleLogger.logDetail(message, obj);
 });
@@ -247,6 +249,7 @@ ipcMain.handle('log-error', (event, message: string) => {
   simpleLogger.error(message);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ipcMain.handle('log-error-detail', (event, message: string, err: any) => {
   simpleLogger.errorDetail(message, err);
 });

@@ -1,6 +1,7 @@
 import { _electron as electron, test as base } from '@playwright/test'
 import { MainPage } from './pages/main-page';
 
+/* eslint-disable @typescript-eslint/no-explicit-any, no-empty-pattern */
 type MyFixtures = {
   electronApp: any;
   mainPage: MainPage;
@@ -24,3 +25,5 @@ export const test = base.extend<MyFixtures>({
         use(mainPage);
     }
 })
+
+/*eslint-enable @typescript-eslint/no-explicit-any, no-empty-pattern */

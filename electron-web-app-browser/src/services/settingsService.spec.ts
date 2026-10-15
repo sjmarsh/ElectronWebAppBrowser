@@ -42,11 +42,11 @@ test('it should use cached settings when called a second time', async () => {
     const loggerSpy = jest.spyOn(simpleLogger, 'log').mockImplementation(() => {});
     
     //first time
-    let result = await settingsService.readSettings();    
+    await settingsService.readSettings();    
     expect(loggerSpy).toHaveBeenCalledWith(expect.stringContaining('Reading settings from file'));  // nothing cached so read from file    
     
     // second time
-    result = await settingsService.readSettings();
+    const result = await settingsService.readSettings();
     expect(loggerSpy).toHaveBeenCalledWith(expect.stringContaining('Using cached settings'));  // should be cached from the first read
     expect(result).not.toBeNull();
 

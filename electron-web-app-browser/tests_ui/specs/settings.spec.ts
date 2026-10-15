@@ -32,7 +32,7 @@ test.describe('Settings Tests', () => {
         expect(await mainPage.settingsDialog?.webAppDisplayNameText()).toBe('');
         expect(await mainPage.settingsDialog?.webAppRootPathText()).toBe('');
         expect(await mainPage.settingsDialog?.webAppExecutableText()).toBe('');
-        expect(await mainPage.settingsDialog?.hideConsoleWindowIsChecked()).toBeFalsy;
+        expect(await mainPage.settingsDialog?.hideConsoleWindowIsChecked()).toBeFalsy();
         expect(await mainPage.settingsDialog?.webAppUrlText()).toBe('');
         expect(await mainPage.settingsDialog?.webAppIconText()).toBe('');
     });
