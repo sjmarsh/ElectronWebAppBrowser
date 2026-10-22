@@ -5,6 +5,8 @@ import { IFileDialogOptions } from "./types/IFileDialogOptions";
 import { ISettingsDefinition } from "./types/ISettingsDefinition";
 import { ISaveSettingsResult } from "./types/ISaveSettingsResult";
 
+console.log('Preload script loaded.');
+
 export interface IElectronAPI {
     selectFile: (ops: IFileDialogOptions) => Promise<string[] | null>;
     readSettings: () => Promise<ISettingsDefinition | null>;

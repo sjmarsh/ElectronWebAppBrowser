@@ -13,10 +13,17 @@
       "app/*": ["./src/*"]
     },
     "types": [
+      "vite",
       "jest"
     ]
   },
-  "include": ["src/**/*"],
+  "include": [
+    "vite.main.config.mts",
+    "vite.preload.config.mts",
+    "vite.renderer.config.mts",
+    "vite.settings.renderer.config.mts",
+    "src/**/*"
+  ],
   "exclude": ["node_modules", "dist"],
   "files":[
    "src/global.d.ts"
