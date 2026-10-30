@@ -1,8 +1,9 @@
 import settingsService from "./settingsService";
 import simpleLogger from "../utils/simpleLogger";
+import { beforeEach, expect, test, vi } from 'vitest';
 import fs from 'fs';
 
-jest.mock('fs');
+vi.mock('fs');
 
 beforeEach(() => {
     settingsService.clearSettings();
@@ -11,10 +12,10 @@ beforeEach(() => {
 test('it should read settings from settings file', async () => {
     const basePath = '\\mock\\path';
     const settingsJsonString = '{"AppDisplayName": "The App", "AppPath": "The Install Path", "ExecutableName": "TheApp.exe",  "AppUrl": "http://localhost:5000", "HideConsoleWindow": true,  "AppIcon": "The Icon Path" }';
-    const cwdSpy = jest.spyOn(process, 'cwd').mockReturnValue(basePath);
-    const existsSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-    const readSpy = jest.spyOn(fs, 'readFileSync').mockReturnValue(settingsJsonString);
-    const loggerSpy = jest.spyOn(simpleLogger, 'log').mockImplementation(() => {});
+    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(basePath);
+    const existsSpy = vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    const readSpy = vi.spyOn(fs, 'readFileSync').mockReturnValue(settingsJsonString);
+    const loggerSpy = vi.spyOn(simpleLogger, 'log').mockImplementation(() => {});
     
     const result = await settingsService.readSettings();
     
@@ -36,10 +37,10 @@ test('it should read settings from settings file', async () => {
 test('it should use cached settings when called a second time', async () => {
     const basePath = '\\mock\\path';
     const settingsJsonString = '{"AppDisplayName": "The App", "AppPath": "The Install Path", "ExecutableName": "TheApp.exe",  "AppUrl": "http://localhost:5000", "HideConsoleWindow": true,  "AppIcon": "The Icon Path" }';
-    const cwdSpy = jest.spyOn(process, 'cwd').mockReturnValue(basePath);
-    const existsSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-    const readSpy = jest.spyOn(fs, 'readFileSync').mockReturnValue(settingsJsonString);
-    const loggerSpy = jest.spyOn(simpleLogger, 'log').mockImplementation(() => {});
+    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(basePath);
+    const existsSpy = vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    const readSpy = vi.spyOn(fs, 'readFileSync').mockReturnValue(settingsJsonString);
+    const loggerSpy = vi.spyOn(simpleLogger, 'log').mockImplementation(() => {});
     
     //first time
     await settingsService.readSettings();    
@@ -59,9 +60,9 @@ test('it should use cached settings when called a second time', async () => {
 test('it should log error when cannot find settings file', async () => {
     const basePath = '\\mock\\path';
     const fullPath = `${basePath}\\settings.json`;
-    const cwdSpy = jest.spyOn(process, 'cwd').mockReturnValue(basePath);
-    const existsSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(false);  //file doesn't exist
-    const loggerSpy = jest.spyOn(simpleLogger, 'error').mockImplementation(() => {});
+    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(basePath);
+    const existsSpy = vi.spyOn(fs, 'existsSync').mockReturnValue(false);  //file doesn't exist
+    const loggerSpy = vi.spyOn(simpleLogger, 'error').mockImplementation(() => {});
         
     const result = await settingsService.readSettings();
     
@@ -78,10 +79,10 @@ test('it should log error when cannot find settings file', async () => {
 test('it should log error when cannot read settings file', async () => {
     const basePath = '\\mock\\path';
     const fullPath = `${basePath}\\settings.json`;
-    const cwdSpy = jest.spyOn(process, 'cwd').mockReturnValue(basePath);
-    const existsSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(true);  
-    const readSpy = jest.spyOn(fs, 'readFileSync').mockImplementationOnce(() => { throw new Error('Cannot read the file') });
-    const loggerSpy = jest.spyOn(simpleLogger, 'errorDetail').mockImplementation(() => {});
+    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(basePath);
+    const existsSpy = vi.spyOn(fs, 'existsSync').mockReturnValue(true);  
+    const readSpy = vi.spyOn(fs, 'readFileSync').mockImplementationOnce(() => { throw new Error('Cannot read the file') });
+    const loggerSpy = vi.spyOn(simpleLogger, 'errorDetail').mockImplementation(() => {});
     
     const result = await settingsService.readSettings();
     

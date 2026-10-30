@@ -1,7 +1,8 @@
 import simpleLogger from './simpleLogger';
+import { expect, test, vi } from 'vitest';
 import fs from 'fs';
 
-jest.mock('fs');
+vi.mock('fs');
 
 const logFileName = 'app.log';
 
@@ -9,7 +10,7 @@ test('it should log message to console', () => {
     const logDate =  new Date().toISOString().split('T')[0];  // ignore the time. just use date for simplicity
     const theMessage = 'Message to log';
     const regex = new RegExp(`${logDate}.*${theMessage}`);
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     simpleLogger.log(theMessage);
 
@@ -37,7 +38,7 @@ test('it should log message with detail', () => {
     const theMessage = 'Message to log';
     const theDetail = { result: 'It was a success', value: 5 };
     const regex = new RegExp(`${logDate}.*${theMessage}.*${JSON.stringify(theDetail)}`);
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     simpleLogger.logDetail(theMessage, theDetail);
 
@@ -50,7 +51,7 @@ test('it should log error', () => {
     const logDate =  new Date().toISOString().split('T')[0];  // ignore the time. just use date for simplicity
     const theError = 'Oh No!';
     const regex = new RegExp(`${logDate}.*${' ERROR: '}.*${theError}`);
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     simpleLogger.error(theError);
 
@@ -65,7 +66,7 @@ test('it should log error with detail', () => {
     const theError = 'Oh No!';
     const theDetail = { result: 'It failed', value: 7 };
     const regex = new RegExp(`${logDate}.*${' ERROR: '}.*${theError}.*${JSON.stringify(theDetail)}`);
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     simpleLogger.errorDetail(theError, theDetail);
 
